@@ -19,21 +19,26 @@ def gen_response_body(body):
 
 
 def gen_error_response(status, error_msg):
-    error_start = gen_response_start(status, TEXT_CONTENT_TYPE)
-    error_body = gen_response_body(error_msg.encode('utf-8'))
+    response_start = gen_response_start(status, TEXT_CONTENT_TYPE)
+    response_body = gen_response_body(error_msg.encode('utf-8'))
 
-    return error_start, error_body
+    return response_start, response_body
 
 
 def gen_text_response(text):
-    text_start = gen_response_start(200, TEXT_CONTENT_TYPE)
-    text_body = gen_response_body(text.encode('utf-8'))
+    response_start = gen_response_start(200, TEXT_CONTENT_TYPE)
+    response_body = gen_response_body(text.encode('utf-8'))
 
-    return text_start, text_body
+    return response_start, response_body
 
 
 def gen_thumbnail_response(thumbnail):
-    thumbnail_start = gen_response_start(200, THUMBNAIL_CONTENT_TYPE)
-    thumbnail_body = gen_response_body(thumbnail)
+    response_start = gen_response_start(200, THUMBNAIL_CONTENT_TYPE)
+    response_body = gen_response_body(thumbnail)
 
-    return thumbnail_start, thumbnail_body
+    # Cache-Control
+    if thumbnail:
+        response_start['headers'].append([b'cache-control', b'public'])
+        response_start['headers'].append([b'cache-control', b'max-age=86400'])
+
+    return response_start, response_body
