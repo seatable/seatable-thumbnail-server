@@ -9,18 +9,8 @@ class HTTPRequest(object):
         self.parse()
 
     def parse(self):
-        self.parse_headers()
         self.parse_url()
         self.parse_query_dict()
-
-    def parse_headers(self):
-        raw_headers = self.headers
-        headers = {}
-        for item in raw_headers:
-            k = item[0].decode().lower()
-            v = item[1].decode()
-            headers[k] = v
-        self.headers = headers
 
     def parse_url(self):
         self.url = self.path[len(settings.URL_PREFIX):]

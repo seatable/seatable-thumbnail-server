@@ -4,7 +4,7 @@ import uuid
 
 from seaserv import seafile_api
 import seatable_thumbnail.settings as settings
-from seatable_thumbnail.constants import FILE_EXT_TYPE_MAP, JWT_AUTH_HEADER_PREFIX, \
+from seatable_thumbnail.constants import FILE_EXT_TYPE_MAP, \
     JWT_VERIFY, JWT_LEEWAY, JWT_AUDIENCE, JWT_ISSUER, JWT_ALGORITHM, \
     IMAGE, PSD, VIDEO, XMIND
 
@@ -44,8 +44,7 @@ class ThumbnailValidator(object):
         )
 
     def jwt_check(self):
-        jwt_token = self.request.headers['authorization'][
-            len(JWT_AUTH_HEADER_PREFIX):]
+        jwt_token = self.request.query_dict['token'][0]
         self.payload = self.jwt_decode_handler(jwt_token)
 
         # permission check

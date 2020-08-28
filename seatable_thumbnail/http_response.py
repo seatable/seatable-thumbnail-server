@@ -6,7 +6,7 @@ def gen_response_start(status, content_type):
         'type': 'http.response.start',
         'status': status,
         'headers': [
-            [b'content-type', content_type],
+            [b'Content-Type', content_type],
         ]
     }
 
@@ -38,8 +38,8 @@ def gen_thumbnail_response(thumbnail, last_modified):
 
     # Cache-Control
     if thumbnail:
-        response_start['headers'].append([b'cache-control', b'public'])
-        response_start['headers'].append([b'cache-control', b'max-age=86400'])
-        response_start['headers'].append([b'last-modified', last_modified])
+        response_start['headers'].append([b'Cache-Control', b'public'])
+        response_start['headers'].append([b'Cache-Control', b'max-age=86400'])
+        response_start['headers'].append([b'Last-Modified', last_modified])
 
     return response_start, response_body
