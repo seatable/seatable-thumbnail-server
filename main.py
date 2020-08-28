@@ -49,8 +49,9 @@ class App:
             try:
                 thumbnail = Thumbnail(**thumbnail_info)
                 body = thumbnail.body
+                last_modified = thumbnail.last_modified
                 # send
-                response_start, response_body = gen_thumbnail_response(body)
+                response_start, response_body = gen_thumbnail_response(body, last_modified)
                 await send(response_start)
                 await send(response_body)
                 return

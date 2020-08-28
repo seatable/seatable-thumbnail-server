@@ -32,7 +32,7 @@ def gen_text_response(text):
     return response_start, response_body
 
 
-def gen_thumbnail_response(thumbnail):
+def gen_thumbnail_response(thumbnail, last_modified):
     response_start = gen_response_start(200, THUMBNAIL_CONTENT_TYPE)
     response_body = gen_response_body(thumbnail)
 
@@ -40,5 +40,6 @@ def gen_thumbnail_response(thumbnail):
     if thumbnail:
         response_start['headers'].append([b'cache-control', b'public'])
         response_start['headers'].append([b'cache-control', b'max-age=86400'])
+        response_start['headers'].append([b'last-modified', last_modified])
 
     return response_start, response_body
