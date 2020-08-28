@@ -18,9 +18,13 @@ INNER_FILE_SERVER_ROOT = 'http://127.0.0.1:8082'
 
 
 # dir
-CONF_DIR = '/opt/seatable/conf/'
-LOG_DIR = '/opt/seatable/logs/'
-THUMBNAIL_DIR = '/opt/seatable/seahub-data/thumbnail/'
+CONF_DIR = 'conf/'
+LOG_DIR = 'logs/'
+THUMBNAIL_DIR = 'thumbnail/'
+
+# CONF_DIR = '/opt/seatable/conf/'
+# LOG_DIR = '/opt/seatable/logs/'
+# THUMBNAIL_DIR = '/opt/seatable/seahub-data/thumbnail/'
 
 
 # size(MB) limit for generate thumbnail
