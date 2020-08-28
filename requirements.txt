@@ -1,0 +1,6 @@
+uvicorn
+pyjwt
+pillow
+
+# psd_tools
+# moviepy
