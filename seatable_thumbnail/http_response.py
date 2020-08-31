@@ -1,4 +1,5 @@
-from seatable_thumbnail.constants import TEXT_CONTENT_TYPE, THUMBNAIL_CONTENT_TYPE
+from seatable_thumbnail.constants import TEXT_CONTENT_TYPE, THUMBNAIL_CONTENT_TYPE, \
+    EMPTY_BYTES
 
 
 def gen_response_start(status, content_type):
@@ -32,11 +33,18 @@ def gen_text_response(text):
     return response_start, response_body
 
 
+def gen_cache_response():
+    response_start = gen_response_start(304, TEXT_CONTENT_TYPE)
+    response_body = gen_response_body(EMPTY_BYTES)
+
+    return response_start, response_body
+
+
 def gen_thumbnail_response(thumbnail, last_modified):
     response_start = gen_response_start(200, THUMBNAIL_CONTENT_TYPE)
     response_body = gen_response_body(thumbnail)
 
-    # Cache-Control
+    # cache
     if thumbnail:
         response_start['headers'].append([b'Cache-Control', b'public'])
         response_start['headers'].append([b'Cache-Control', b'max-age=86400'])

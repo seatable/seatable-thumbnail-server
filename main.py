@@ -4,7 +4,7 @@ from seatable_thumbnail.validators import ThumbnailValidator
 from seatable_thumbnail.thumbnail import Thumbnail
 from seatable_thumbnail.http_request import HTTPRequest
 from seatable_thumbnail.http_response import gen_error_response, \
-    gen_text_response, gen_thumbnail_response
+    gen_text_response, gen_thumbnail_response, gen_cache_response
 
 logger = logging.getLogger(__name__)
 
@@ -33,12 +33,19 @@ class App:
 
 # ===== thumbnail =====
         elif 'thumbnail/' in request.url:
+            # cache
+            if request.headers.get('if-modified-since'):
+                response_start, response_body = gen_cache_response()
+                await send(response_start)
+                await send(response_body)
+                return
+
             # check
             try:
                 validator = ThumbnailValidator(request)
                 thumbnail_info = validator.thumbnail_info
             except Exception as e:
-                logger.error(e)
+                logger.exception(e)
                 response_start, response_body = gen_error_response(
                     400, 'Request invalid.')
                 await send(response_start)
@@ -56,7 +63,7 @@ class App:
                 await send(response_body)
                 return
             except Exception as e:
-                logger.error(e)
+                logger.exception(e)
                 response_start, response_body = gen_error_response(
                     500, 'Generate failed.')
                 await send(response_start)
