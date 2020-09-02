@@ -1,5 +1,6 @@
 import logging
 
+import seatable_thumbnail.settings as settings
 from seatable_thumbnail.validators import ThumbnailValidator
 from seatable_thumbnail.thumbnail import Thumbnail
 from seatable_thumbnail.http_request import HTTPRequest
