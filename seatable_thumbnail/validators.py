@@ -1,6 +1,5 @@
 import os
 import jwt
-import uuid
 
 from seaserv import seafile_api
 import seatable_thumbnail.settings as settings
@@ -85,9 +84,9 @@ class ThumbnailValidator(object):
         # dtable_uuid check
         workspace_id = int(url_split[2])
         dtable_uuid = url_split[4]
-        dtable_uuid = uuid.UUID(dtable_uuid).hex
-        if dtable_uuid != self.payload['dtable_uuid']:
-            raise AssertionError(400, 'dtable_uuid invalid.')
+        # dtable_uuid = uuid.UUID(dtable_uuid).hex
+        # if dtable_uuid != self.payload['dtable_uuid']:
+        #     raise AssertionError(400, 'dtable_uuid invalid.')
 
         self.params = {
             'workspace_id': workspace_id,

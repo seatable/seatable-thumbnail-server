@@ -5,7 +5,8 @@ import sys
 # environment
 # sys.path.append('/opt/seafile/lib/python3.6/site-packages')
 # os.environ['CCNET_CONF_DIR'] = '/opt/seafile/conf'
-# os.environ['SEAFILE_CONF_DIR'] = '/opt/seafile/conf'
+# os.environ['SEAFILE_CONF_DIR'] = '/opt/seafile/conf/seafile'
+# os.environ['SEAFILE_CENTRAL_CONF_DIR'] = '/opt/seafile/conf'
 
 #
 ENABLE_VIDEO_THUMBNAIL = False
