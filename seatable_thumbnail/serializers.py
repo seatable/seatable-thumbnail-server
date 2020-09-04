@@ -50,10 +50,6 @@ class ThumbnailSerializer(object):
         jwt_token = self.request.query_dict['token'][0]
         self.payload = self.jwt_decode_handler(jwt_token)
 
-        # permission check
-        if 'r' not in self.payload['permission']:
-            raise AssertionError(403, 'permission denied.')
-
     def get_enable_file_type(self):
         enable_file_type = [IMAGE]
         if settings.ENABLE_PSD_THUMBNAIL:

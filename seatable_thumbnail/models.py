@@ -70,3 +70,17 @@ class DTableViewGroupShare(Base):
     permission = Column(String(15))
     table_id = Column(String(36), index=True)
     view_id = Column(String(36), index=True)
+
+
+class DTableExternalLinks(Base):
+    __tablename__ = 'dtable_external_link'
+    id = Column(BigInteger, primary_key=True)
+    dtable_id = Column(Integer, ForeignKey('dtables.id'))
+    creator = Column(String(255))
+    token = Column(String(100), unique=True)
+    permission = Column(String(50))
+    view_cnt = Column(Integer)
+    create_at = Column(DateTime)
+    is_custom = Column(Boolean)
+    password = Column(String(128), nullable=True)
+    expire_date = Column(DateTime)

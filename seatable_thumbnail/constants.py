@@ -11,6 +11,11 @@ JWT_AUDIENCE = None
 JWT_ISSUER = None
 
 
+# permission
+PERMISSION_READ = 'r'
+PERMISSION_READ_WRITE = 'rw'
+
+
 # file type
 EMPTY_BYTES = b''
 THUMBNAIL_EXTENSION = 'png'
