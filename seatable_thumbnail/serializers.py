@@ -1,14 +1,18 @@
 import os
 import jwt
+import uuid
+from email.utils import formatdate
 
 from seaserv import seafile_api
+from seatable_thumbnail import session
 import seatable_thumbnail.settings as settings
-from seatable_thumbnail.constants import FILE_EXT_TYPE_MAP, \
+from seatable_thumbnail.constants import EMPTY_BYTES, FILE_EXT_TYPE_MAP, \
     JWT_VERIFY, JWT_LEEWAY, JWT_AUDIENCE, JWT_ISSUER, JWT_ALGORITHM, \
     IMAGE, PSD, VIDEO, XMIND
+from seatable_thumbnail.models import Workspaces
 
 
-class ThumbnailValidator(object):
+class ThumbnailSerializer(object):
     def __init__(self, request):
         self.request = request
         self.check()
@@ -81,15 +85,13 @@ class ThumbnailValidator(object):
         ]):
             raise AssertionError(400, 'url invalid.')
 
-        # dtable_uuid check
+        #
         workspace_id = int(url_split[2])
-        dtable_uuid = url_split[4]
-        # dtable_uuid = uuid.UUID(dtable_uuid).hex
-        # if dtable_uuid != self.payload['dtable_uuid']:
-        #     raise AssertionError(400, 'dtable_uuid invalid.')
+        dtable_uuid = uuid.UUID(url_split[4]).hex
 
         self.params = {
             'workspace_id': workspace_id,
+            'dtable_uuid': dtable_uuid,
             'size': size,
             'file_path': file_path,
             'file_name': file_name,
@@ -98,9 +100,13 @@ class ThumbnailValidator(object):
         }
 
     def resource_check(self):
-        repo_id = self.payload['repo_id']
+        workspace_id = self.params['workspace_id']
         file_path = self.params['file_path']
         size = self.params['size']
+        workspace = session.query(
+            Workspaces).filter_by(id=workspace_id).first()
+        repo_id = workspace.repo_id
+        workspace_owner = workspace.owner
         file_id = seafile_api.get_file_id_by_path(repo_id, file_path)
         if not file_id:
             raise ValueError(404, 'file_id not found.')
@@ -108,9 +114,24 @@ class ThumbnailValidator(object):
         thumbnail_dir = os.path.join(settings.THUMBNAIL_DIR, str(size))
         thumbnail_path = os.path.join(thumbnail_dir, file_id)
         os.makedirs(thumbnail_dir, exist_ok=True)
+        exist, last_modified = self.exist_check(thumbnail_path)
 
         self.resource = {
+            'repo_id': repo_id,
             'file_id': file_id,
+            'workspace_owner': workspace_owner,
             'thumbnail_dir': thumbnail_dir,
             'thumbnail_path': thumbnail_path,
+            'exist': exist,
+            'last_modified': last_modified,
         }
+
+    def exist_check(self, thumbnail_path):
+        if os.path.exists(thumbnail_path):
+            last_modified_time = os.path.getmtime(thumbnail_path)
+            last_modified_time = int(last_modified_time)
+            last_modified = formatdate(
+                last_modified_time, usegmt=True).encode('utf-8')
+            return True, last_modified
+        else:
+            return False, EMPTY_BYTES

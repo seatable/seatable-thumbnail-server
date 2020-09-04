@@ -23,6 +23,14 @@ URL_PREFIX = '/'
 INNER_FILE_SERVER_ROOT = 'http://127.0.0.1:8082'
 
 
+# mysql
+MYSQL_USER = ''
+MYSQL_PASSWORD = ''
+MYSQL_HOST = ''
+MYSQL_PORT = '3306'
+DATABASE_NAME = ''
+
+
 # dir
 CONF_DIR = 'conf/'
 LOG_DIR = 'logs/'

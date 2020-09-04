@@ -1,7 +1,7 @@
 import logging
 
-import seatable_thumbnail.settings as settings
-from seatable_thumbnail.validators import ThumbnailValidator
+from seatable_thumbnail.serializers import ThumbnailSerializer
+from seatable_thumbnail.permissions import ThumbnailPermission
 from seatable_thumbnail.thumbnail import Thumbnail
 from seatable_thumbnail.http_request import HTTPRequest
 from seatable_thumbnail.http_response import gen_error_response, \
@@ -33,18 +33,11 @@ class App:
             return
 
 # ===== thumbnail =====
-        elif 'thumbnail/' in request.url:
-            # cache
-            if request.headers.get('if-modified-since'):
-                response_start, response_body = gen_cache_response()
-                await send(response_start)
-                await send(response_body)
-                return
-
-            # check
+        elif 'thumbnail/' == request.url[:10]:
+            # serializer
             try:
-                validator = ThumbnailValidator(request)
-                thumbnail_info = validator.thumbnail_info
+                serializer = ThumbnailSerializer(request)
+                thumbnail_info = serializer.thumbnail_info
             except Exception as e:
                 logger.exception(e)
                 response_start, response_body = gen_error_response(
@@ -52,6 +45,32 @@ class App:
                 await send(response_start)
                 await send(response_body)
                 return
+
+            # permission
+            try:
+                permission = ThumbnailPermission(**thumbnail_info)
+            except Exception as e:
+                logger.exception(e)
+                response_start, response_body = gen_error_response(
+                    403, 'Forbidden.')
+                await send(response_start)
+                await send(response_body)
+                return
+
+            # cache
+            try:
+                if_modified_since_list = request.headers.get('if-modified-since')
+                if if_modified_since_list:
+                    if_modified_since = if_modified_since_list[0].encode('utf-8')
+                    last_modified = thumbnail_info.get('last_modified')
+                    if if_modified_since and last_modified \
+                            and if_modified_since == last_modified:
+                        response_start, response_body = gen_cache_response()
+                        await send(response_start)
+                        await send(response_body)
+                        return
+            except Exception as e:
+                logger.exception(e)
 
             # get or generate
             try:

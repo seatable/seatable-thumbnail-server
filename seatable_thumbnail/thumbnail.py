@@ -18,16 +18,10 @@ class Thumbnail(object):
     def __init__(self, **info):
         self.__dict__.update(info)
         self.body = EMPTY_BYTES
-        self.last_modified = EMPTY_BYTES
-        self.check_exists()
+        self.get()
 
-    def check_exists(self):
-        if os.path.exists(self.thumbnail_path):
-            last_modified_time = os.path.getmtime(self.thumbnail_path)
-            last_modified_time = int(last_modified_time)
-            self.last_modified = formatdate(
-                last_modified_time, usegmt=True).encode('utf-8')
-
+    def get(self):
+        if self.exist:
             with open(self.thumbnail_path, 'rb') as f:
                 self.body = f.read()
         else:
