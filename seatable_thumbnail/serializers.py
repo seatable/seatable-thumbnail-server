@@ -99,6 +99,8 @@ class ThumbnailSerializer(object):
         workspace_id = self.params['workspace_id']
         file_path = self.params['file_path']
         size = self.params['size']
+
+        session.commit()  # clear session cache
         workspace = session.query(
             Workspaces).filter_by(id=workspace_id).first()
         repo_id = workspace.repo_id
