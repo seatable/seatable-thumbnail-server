@@ -6,7 +6,7 @@ from email.utils import formatdate
 from seaserv import seafile_api
 from seatable_thumbnail import session
 import seatable_thumbnail.settings as settings
-from seatable_thumbnail.constants import EMPTY_BYTES, FILE_EXT_TYPE_MAP, \
+from seatable_thumbnail.constants import FILE_EXT_TYPE_MAP, \
     JWT_VERIFY, JWT_LEEWAY, JWT_AUDIENCE, JWT_ISSUER, JWT_ALGORITHM, \
     IMAGE, PSD, VIDEO, XMIND
 from seatable_thumbnail.models import Workspaces
@@ -113,6 +113,7 @@ class ThumbnailSerializer(object):
         thumbnail_path = os.path.join(thumbnail_dir, file_id)
         os.makedirs(thumbnail_dir, exist_ok=True)
         exist, last_modified = self.exist_check(thumbnail_path)
+        etag = '"' + file_id + '"'
 
         self.resource = {
             'repo_id': repo_id,
@@ -122,14 +123,13 @@ class ThumbnailSerializer(object):
             'thumbnail_path': thumbnail_path,
             'exist': exist,
             'last_modified': last_modified,
+            'etag': etag,
         }
 
     def exist_check(self, thumbnail_path):
         if os.path.exists(thumbnail_path):
             last_modified_time = os.path.getmtime(thumbnail_path)
-            last_modified_time = int(last_modified_time)
-            last_modified = formatdate(
-                last_modified_time, usegmt=True).encode('utf-8')
+            last_modified = formatdate(int(last_modified_time), usegmt=True)
             return True, last_modified
         else:
-            return False, EMPTY_BYTES
+            return False, ''

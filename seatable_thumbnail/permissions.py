@@ -9,14 +9,11 @@ from seatable_thumbnail.constants import PERMISSION_READ, PERMISSION_READ_WRITE
 class ThumbnailPermission(object):
     def __init__(self, **info):
         self.__dict__.update(info)
-        self.check()
-
-    def check(self):
         self.dtable = session.query(
             DTables).filter_by(uuid=self.dtable_uuid).first()
 
-        if not self.has_dtable_asset_read_permission():
-            raise AssertionError(403, 'Permission denied.')
+    def check(self):
+        return self.has_dtable_asset_read_permission()
 
     def has_dtable_asset_read_permission(self):
         # three ways to access asset

@@ -3,14 +3,14 @@ server {
         return 301 https://$host$request_uri;
     }
 
-	listen 80;
-	server_name thumbnail.seatable.cn;
+    listen 80;
+    server_name thumbnail.seatable.cn;
     return 404;
 }
 
 
 server {
-	server_name thumbnail.seatable.cn;
+    server_name thumbnail.seatable.cn;
 
     listen 443 ssl;
     ssl_certificate /root/.acme.sh/thumbnail.seatable.cn/fullchain.cer;

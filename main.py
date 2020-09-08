@@ -41,7 +41,7 @@ class App:
             except Exception as e:
                 logger.exception(e)
                 response_start, response_body = gen_error_response(
-                    400, 'Request invalid.')
+                    400, 'Bad request.')
                 await send(response_start)
                 await send(response_body)
                 return
@@ -49,26 +49,36 @@ class App:
             # permission
             try:
                 permission = ThumbnailPermission(**thumbnail_info)
+                if not permission.check():
+                    response_start, response_body = gen_error_response(
+                        403, 'Forbidden.')
+                    await send(response_start)
+                    await send(response_body)
+                    return
             except Exception as e:
                 logger.exception(e)
                 response_start, response_body = gen_error_response(
-                    403, 'Forbidden.')
+                    500, 'Internal server error.')
                 await send(response_start)
                 await send(response_body)
                 return
 
             # cache
             try:
-                if_modified_since_list = request.headers.get('if-modified-since')
-                if if_modified_since_list:
-                    if_modified_since = if_modified_since_list[0].encode('utf-8')
-                    last_modified = thumbnail_info.get('last_modified')
-                    if if_modified_since and last_modified \
-                            and if_modified_since == last_modified:
-                        response_start, response_body = gen_cache_response()
-                        await send(response_start)
-                        await send(response_body)
-                        return
+                etag = thumbnail_info.get('etag')
+                if_none_match_headers = request.headers.get('if-none-match')
+                if_none_match = if_none_match_headers[0] if if_none_match_headers else ''
+
+                last_modified = thumbnail_info.get('last_modified')
+                if_modified_since_headers = request.headers.get('if-modified-since')
+                if_modified_since = if_modified_since_headers[0] if if_modified_since_headers else ''
+
+                if (if_none_match and if_none_match == etag) \
+                        or (if_modified_since and if_modified_since == last_modified):
+                    response_start, response_body = gen_cache_response()
+                    await send(response_start)
+                    await send(response_body)
+                    return
             except Exception as e:
                 logger.exception(e)
 
@@ -77,15 +87,17 @@ class App:
                 thumbnail = Thumbnail(**thumbnail_info)
                 body = thumbnail.body
                 last_modified = thumbnail.last_modified
-                # send
-                response_start, response_body = gen_thumbnail_response(body, last_modified)
+                etag = thumbnail.etag
+
+                response_start, response_body = gen_thumbnail_response(
+                    body, etag, last_modified)
                 await send(response_start)
                 await send(response_body)
                 return
             except Exception as e:
                 logger.exception(e)
                 response_start, response_body = gen_error_response(
-                    500, 'Generate failed.')
+                    500, 'Internal server error.')
                 await send(response_start)
                 await send(response_body)
                 return
@@ -93,7 +105,7 @@ class App:
 # ===== Not found =====
         else:
             response_start, response_body = gen_error_response(
-                404, 'Not Found.')
+                404, 'Not found.')
             await send(response_start)
             await send(response_body)
             return

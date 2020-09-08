@@ -109,9 +109,7 @@ class Thumbnail(object):
         image.thumbnail((self.size, self.size), Image.ANTIALIAS)
         image.save(self.thumbnail_path, THUMBNAIL_EXTENSION)
         last_modified_time = time.time()
-        last_modified_time = int(last_modified_time)
-        self.last_modified = formatdate(
-            last_modified_time, usegmt=True).encode('utf-8')
+        self.last_modified = formatdate(int(last_modified_time), usegmt=True)
 
         # PIL to bytes
         image_bytes = BytesIO()

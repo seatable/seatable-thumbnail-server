@@ -40,14 +40,14 @@ def gen_cache_response():
     return response_start, response_body
 
 
-def gen_thumbnail_response(thumbnail, last_modified):
+def gen_thumbnail_response(thumbnail, etag, last_modified):
     response_start = gen_response_start(200, THUMBNAIL_CONTENT_TYPE)
     response_body = gen_response_body(thumbnail)
 
     # cache
     if thumbnail:
-        response_start['headers'].append([b'Cache-Control', b'public'])
-        response_start['headers'].append([b'Cache-Control', b'max-age=86400'])
-        response_start['headers'].append([b'Last-Modified', last_modified])
+        response_start['headers'].append([b'Cache-Control', b'max-age=86400, public'])
+        response_start['headers'].append([b'ETag', etag.encode('utf-8')])
+        response_start['headers'].append([b'Last-Modified', last_modified.encode('utf-8')])
 
     return response_start, response_body
