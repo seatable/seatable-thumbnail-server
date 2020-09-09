@@ -34,7 +34,7 @@ def gen_text_response(text):
 
 
 def gen_cache_response():
-    response_start = gen_response_start(304, TEXT_CONTENT_TYPE)
+    response_start = gen_response_start(304, THUMBNAIL_CONTENT_TYPE)
     response_body = gen_response_body(EMPTY_BYTES)
 
     return response_start, response_body

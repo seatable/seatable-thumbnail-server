@@ -1,15 +1,15 @@
 import os
-import jwt
 import uuid
+import json
+import base64
 from email.utils import formatdate
 
 from seaserv import seafile_api
-from seatable_thumbnail import session
+from seatable_thumbnail import db_session
 import seatable_thumbnail.settings as settings
 from seatable_thumbnail.constants import FILE_EXT_TYPE_MAP, \
-    JWT_VERIFY, JWT_LEEWAY, JWT_AUDIENCE, JWT_ISSUER, JWT_ALGORITHM, \
     IMAGE, PSD, VIDEO, XMIND
-from seatable_thumbnail.models import Workspaces
+from seatable_thumbnail.models import Workspaces, DjangoSession
 
 
 class ThumbnailSerializer(object):
@@ -19,36 +19,38 @@ class ThumbnailSerializer(object):
         self.gen_thumbnail_info()
 
     def check(self):
-        self.jwt_check()
         self.params_check()
+        db_session.commit()  # clear db session cache
+        self.session_check()
         self.resource_check()
         self.gen_thumbnail_info()
 
     def gen_thumbnail_info(self):
         thumbnail_info = {}
-        thumbnail_info.update(self.payload)
         thumbnail_info.update(self.params)
+        thumbnail_info.update(self.session_data)
         thumbnail_info.update(self.resource)
         self.thumbnail_info = thumbnail_info
 
-    def jwt_decode_handler(self, jwt_token):
-        options = {
-            'verify_exp': True,
-        }
-        return jwt.decode(
-            jwt_token,
-            settings.JWT_SECRET_KEY,
-            JWT_VERIFY,
-            options=options,
-            leeway=JWT_LEEWAY,
-            audience=JWT_AUDIENCE,
-            issuer=JWT_ISSUER,
-            algorithms=[JWT_ALGORITHM]
-        )
+    def parse_django_session(self, session_data):
+        # only for django 1.11.x
+        encoded_data = base64.b64decode(session_data)
+        hash_key, serialized = encoded_data.split(b':', 1)
+        return json.loads(serialized.decode('latin-1'))
 
-    def jwt_check(self):
-        jwt_token = self.request.query_dict['token'][0]
-        self.payload = self.jwt_decode_handler(jwt_token)
+    def session_check(self):
+        session_key = self.request.cookies[settings.SESSION_KEY]
+        django_session = db_session.query(
+            DjangoSession).filter_by(session_key=session_key).first()
+        self.session_data = self.parse_django_session(django_session.session_data)
+
+        username = self.session_data.get('_auth_user_name')
+        external_link = self.session_data.get('external_link')
+        if username:
+            self.session_data['username'] = username
+
+        if not username and not external_link:
+            raise AssertionError(400, 'django session invalid.')
 
     def get_enable_file_type(self):
         enable_file_type = [IMAGE]
@@ -100,8 +102,7 @@ class ThumbnailSerializer(object):
         file_path = self.params['file_path']
         size = self.params['size']
 
-        session.commit()  # clear session cache
-        workspace = session.query(
+        workspace = db_session.query(
             Workspaces).filter_by(id=workspace_id).first()
         repo_id = workspace.repo_id
         workspace_owner = workspace.owner

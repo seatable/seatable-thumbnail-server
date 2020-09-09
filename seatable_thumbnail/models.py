@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Index, DateTime, \
-    Boolean, BigInteger
+    Boolean, BigInteger, Text
 
 from seatable_thumbnail import Base
 
@@ -83,4 +83,11 @@ class DTableExternalLinks(Base):
     create_at = Column(DateTime)
     is_custom = Column(Boolean)
     password = Column(String(128), nullable=True)
+    expire_date = Column(DateTime)
+
+
+class DjangoSession(Base):
+    __tablename__ = 'django_session'
+    session_key = Column(String(40), primary_key=True)
+    session_data = Column(Text)
     expire_date = Column(DateTime)

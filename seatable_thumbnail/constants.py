@@ -3,14 +3,6 @@ TEXT_CONTENT_TYPE = b'text/plain'
 THUMBNAIL_CONTENT_TYPE = b'image/png'
 
 
-# jwt
-JWT_ALGORITHM = 'HS256'
-JWT_VERIFY = True
-JWT_LEEWAY = 0
-JWT_AUDIENCE = None
-JWT_ISSUER = None
-
-
 # permission
 PERMISSION_READ = 'r'
 PERMISSION_READ_WRITE = 'rw'

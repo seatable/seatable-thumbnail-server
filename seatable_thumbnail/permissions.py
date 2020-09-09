@@ -1,5 +1,5 @@
 from seaserv import ccnet_api
-from seatable_thumbnail import session
+from seatable_thumbnail import db_session
 from seatable_thumbnail.models import DTables, DTableShare, \
     DTableGroupShare, DTableViewUserShare, DTableViewGroupShare, \
     DTableExternalLinks
@@ -9,7 +9,7 @@ from seatable_thumbnail.constants import PERMISSION_READ, PERMISSION_READ_WRITE
 class ThumbnailPermission(object):
     def __init__(self, **info):
         self.__dict__.update(info)
-        self.dtable = session.query(
+        self.dtable = db_session.query(
             DTables).filter_by(uuid=self.dtable_uuid).first()
 
     def check(self):
@@ -33,17 +33,7 @@ class ThumbnailPermission(object):
         return False
 
     def can_access_image_through_external_link(self):
-        external_link = session.query(
-            DTableExternalLinks).filter_by(token=self.external_link_token).first()
-        if not external_link:
-            return False
-
-        external_link_dtable = session.query(
-            DTables).filter_by(id=external_link.dtable_id).first()
-        if not external_link_dtable:
-            return False
-
-        return external_link_dtable.uuid == self.dtable_uuid
+        return self.external_link['dtable_uuid'] == self.dtable_uuid
 
     def check_dtable_permission(self):
         """Check workspace/dtable access permission of a user.
@@ -64,7 +54,7 @@ class ThumbnailPermission(object):
                 return PERMISSION_READ_WRITE
 
         if dtable:  # check user's all permissions from `share`, `group-share` and checkout higher one
-            dtable_share = session.query(
+            dtable_share = db_session.query(
                 DTableShare).filter_by(dtable_id=dtable.id, to_user=username).first()
             if dtable_share and dtable_share.permission == PERMISSION_READ_WRITE:
                 return dtable_share.permission
@@ -75,7 +65,7 @@ class ThumbnailPermission(object):
             else:
                 groups = ccnet_api.get_groups(username, return_ancestors=True)
             group_ids = [group.id for group in groups]
-            group_permissions = session.query(
+            group_permissions = db_session.query(
                 DTableGroupShare.permission).filter(DTableGroupShare.dtable_id == dtable.id, DTableGroupShare.group_id.in_(group_ids)).all()
 
             for group_permission in group_permissions:
@@ -101,7 +91,7 @@ class ThumbnailPermission(object):
         username = self.username
         dtable = self.dtable
 
-        view_share = session.query(
+        view_share = db_session.query(
             DTableViewUserShare).filter_by(dtable_id=dtable.id, to_user=username).order_by(DTableViewUserShare.permission.desc()).first()
         if not view_share:
             return ''
@@ -113,7 +103,7 @@ class ThumbnailPermission(object):
         username = self.username
         dtable = self.dtable
 
-        view_shares = session.query(
+        view_shares = db_session.query(
             DTableViewGroupShare).filter_by(dtable_id=dtable.id).order_by(DTableViewGroupShare.permission.desc()).all()
 
         target_view_share = None

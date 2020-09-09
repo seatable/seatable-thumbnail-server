@@ -10,6 +10,7 @@ class HTTPRequest(object):
 
     def parse(self):
         self.parse_headers()
+        self.parse_cookies()
         self.parse_url()
         self.parse_query_dict()
 
@@ -24,6 +25,16 @@ class HTTPRequest(object):
             else:
                 headers[k] = [v]
         self.headers = headers
+
+    def parse_cookies(self):
+        cookies = {}
+        if self.headers.get('cookie'):
+            cookie_string = self.headers.get('cookie')[0]
+            for item in cookie_string.split('; '):
+                k = item.split('=')[0]
+                v = item.split('=')[1]
+                cookies[k] = v
+        self.cookies = cookies
 
     def parse_url(self):
         self.url = self.path[len(settings.URL_PREFIX):]

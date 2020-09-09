@@ -11,5 +11,5 @@ db_kwargs = dict(pool_recycle=300, echo=False, echo_pool=False)
 
 engine = create_engine(db_url, **db_kwargs)
 Base = declarative_base()
-Session = sessionmaker(bind=engine)
-session = Session()
+DBSession = sessionmaker(bind=engine)
+db_session = DBSession()

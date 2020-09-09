@@ -14,8 +14,8 @@ ENABLE_XMIND_THUMBNAIL = False
 ENABLE_PSD_THUMBNAIL = False
 
 
-# jwt
-JWT_SECRET_KEY = '__Same as SeaTable JWT config __'
+# session key
+SESSION_KEY = 'sessionid'
 
 
 # url
@@ -32,7 +32,6 @@ DATABASE_NAME = ''
 
 
 # dir
-CONF_DIR = 'conf/'
 LOG_DIR = 'logs/'
 THUMBNAIL_DIR = 'thumbnail/'
 
@@ -53,12 +52,5 @@ THUMBNAIL_VIDEO_FRAME_TIME = 5
 # ======================== local settings ======================== #
 try:
     from local_settings import *
-except ImportError as e:
-    pass
-
-try:
-    if os.path.exists(CONF_DIR):
-        sys.path.append(CONF_DIR)
-    from seatable_thumbnail_settings import *
 except ImportError as e:
     pass

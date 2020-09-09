@@ -32,4 +32,9 @@ server {
         proxy_set_header X-Forwarded-Host $server_name;
         }
 
+    # cloud.seatable.cn
+    # location /thumbnail/ {
+    #     proxy_pass https://thumbnail.seatable.cn/thumbnail/;
+    # }
+
 }
