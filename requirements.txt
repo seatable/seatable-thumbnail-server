@@ -1,0 +1,8 @@
+uvicorn
+pillow
+pymysql
+sqlalchemy
+future  # seaf-server
+
+# psd_tools
+# moviepy
