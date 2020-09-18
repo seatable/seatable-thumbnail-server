@@ -32,7 +32,7 @@ done
 
 if [[ ! -L /etc/nginx/sites-enabled/default ]]; then
     ln -s /opt/seatable-thumbnail/conf/nginx.conf /etc/nginx/sites-enabled/default
-    nginx -s reload
+    nginx -s reload &>> /opt/seatable-thumbnail/logs/init.log
 fi
 
 
@@ -43,7 +43,7 @@ if [[ -f /shared/ssl/renew_cert ]]; then
     openssl x509 -checkend 2592000 -noout -in /opt/ssl/$SEATABLE_THUMBNAIL_SERVER_HOSTNAME.crt
     if [[ $? != "0" ]]; then
         log "Renew cert"
-        /scripts/renew_cert.sh
+        /scripts/renew_cert.sh &>> /opt/seatable-thumbnail/logs/init.log
     fi
 fi
 

@@ -55,7 +55,7 @@ function start_server() {
 
     /scripts/monitor.sh &>> /opt/seatable-thumbnail/logs/monitor.log &
 
-    echo "SeaTable-thumbnail started"
+    echo "SeaTable-thumbnail-server started"
     echo
 
 }

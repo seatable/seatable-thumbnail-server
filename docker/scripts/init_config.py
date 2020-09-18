@@ -12,50 +12,8 @@ SERVER_URL = server_prefix + SEATABLE_THUMBNAIL_SERVER_HOSTNAME
 # seafile
 seafile_config_path = '/opt/seatable-thumbnail/conf/seafile.conf'
 seafile_config = """
-[general]
-cloud_mode = true
-multi_tenancy = true
-
-[memcached]
-enabled = true
-memcached_options = --SERVER=memcached --POOL-MIN=10 --POOL-MAX=100
-
-[quota]
-default = 5
-org_default = 100
-calc_share_usage = true
-
-[httpserver]
+[fileserver]
 port=8082
-max_upload_size=30000
-max_download_dir_size=30000
-
-[network]
-port=12001
-
-[block_backend]
-name = name
-key_id = key_id
-key = key
-bucket = bucket
-endpoint = endpoint
-memcached_options = --SERVER=memcached --POOL-MIN=10 --POOL-MAX=100
-
-[commit_object_backend]
-name = name
-key_id = key_id
-key = key
-bucket = bucket
-endpoint = endpoint
-memcached_options = --SERVER=memcached --POOL-MIN=10 --POOL-MAX=100
-
-[fs_object_backend]
-name = name
-key_id = key_id
-key = key
-bucket = bucket
-endpoint = endpoint
-memcached_options = --SERVER=memcached --POOL-MIN=10 --POOL-MAX=100
 
 [database]
 type = mysql
@@ -96,14 +54,12 @@ if not os.path.exists(ccnet_config_path):
 # seatable-thumbnail
 seatable_thumbnail_config_path = '/opt/seatable-thumbnail/conf/seatable_thumbnail_settings.py'
 seatable_thumbnail_config = """
-
 # mysql
 MYSQL_USER = 'user'
 MYSQL_PASSWORD = 'password'
 MYSQL_HOST = 'host'
 MYSQL_PORT = '3306'
 DATABASE_NAME = 'db_name'
-
 """
 
 if not os.path.exists(seatable_thumbnail_config_path):
@@ -134,6 +90,11 @@ nginx_common_config = """
         access_log      /opt/nginx-logs/seatable-thumbnail.access.log seatableformat;
         error_log       /opt/nginx-logs/seatable-thumbnail.error.log;
     }
+
+    # cloud.seatable.cn
+    # location /thumbnail/ {
+    #     proxy_pass https://thumbnail.seatable.cn/thumbnail/;
+    # }
 
 }
 """
