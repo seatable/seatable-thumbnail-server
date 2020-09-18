@@ -82,9 +82,9 @@ SERVICE_URL = %s/
 ENGINE = mysql
 HOST = host
 PORT = 3306
-USER = root
+USER = user
 PASSWD = password
-DB = ccnet_db
+DB = db_name
 CONNECTION_CHARSET = utf8
 """ % (SERVER_URL)
 
@@ -148,6 +148,7 @@ signed_chain_crt = ssl_dir + SEATABLE_THUMBNAIL_SERVER_HOSTNAME + '.crt'
 # init nginx https config after init http
 def init_https():
     # init letsencrypt
+    print('Start init letsencrypt')
     if not os.path.exists(domain_key) or not os.path.exists(signed_chain_crt):
         os.system('mkdir -p /var/www/challenges/')
 
@@ -159,7 +160,7 @@ def init_https():
             os.system('openssl req -new -sha256 -key %s -subj "/CN=%s" > %s' %
                       (domain_key, SEATABLE_THUMBNAIL_SERVER_HOSTNAME, domain_csr))
 
-        ret = os.system('python3 /scripts/acme-tiny-master/acme_tiny.py --account-key %s --csr %s --acme-dir /var/www/challenges/ > %s' %
+        ret = os.system('python3 /templates/acme-tiny-master/acme_tiny.py --account-key %s --csr %s --acme-dir /var/www/challenges/ > %s' %
                         (account_key, domain_csr, signed_chain_crt))
 
         if ret != 0:

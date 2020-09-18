@@ -40,7 +40,7 @@ fi
 if [[ -f /shared/ssl/renew_cert ]]; then
     ln -sf /shared/ssl/renew_cert /var/spool/cron/crontabs/root
 
-    openssl x509 -checkend 2592000 -noout -in /opt/ssl/$SEATABLE_SERVER_HOSTNAME.crt
+    openssl x509 -checkend 2592000 -noout -in /opt/ssl/$SEATABLE_THUMBNAIL_SERVER_HOSTNAME.crt
     if [[ $? != "0" ]]; then
         log "Renew cert"
         /scripts/renew_cert.sh
