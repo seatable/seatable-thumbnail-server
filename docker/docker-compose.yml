@@ -1,0 +1,13 @@
+version: '2.0'
+services:
+  seatable:
+    image: docker.seafile.top/seafile-dev/seatable-thumbnail-server:1.3.0
+    container_name: seatable-thumbnail
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /opt/seatable-thumbnail/shared:/shared
+    environment:
+      - SEATABLE_THUMBNAIL_SERVER_HOSTNAME=thumbnail.seatable.cn
+      - SEATABLE_THUMBNAIL_SERVER_LETSENCRYPT=True

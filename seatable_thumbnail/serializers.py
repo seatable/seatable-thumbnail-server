@@ -5,7 +5,6 @@ import base64
 from email.utils import formatdate
 
 from seaserv import seafile_api
-from seatable_thumbnail import db_session
 import seatable_thumbnail.settings as settings
 from seatable_thumbnail.constants import FILE_EXT_TYPE_MAP, \
     IMAGE, PSD, VIDEO, XMIND
@@ -13,14 +12,14 @@ from seatable_thumbnail.models import Workspaces, DjangoSession
 
 
 class ThumbnailSerializer(object):
-    def __init__(self, request):
+    def __init__(self, db_session, request):
+        self.db_session = db_session
         self.request = request
         self.check()
         self.gen_thumbnail_info()
 
     def check(self):
         self.params_check()
-        db_session.commit()  # clear db session cache
         self.session_check()
         self.resource_check()
         self.gen_thumbnail_info()
@@ -40,7 +39,7 @@ class ThumbnailSerializer(object):
 
     def session_check(self):
         session_key = self.request.cookies[settings.SESSION_KEY]
-        django_session = db_session.query(
+        django_session = self.db_session.query(
             DjangoSession).filter_by(session_key=session_key).first()
         self.session_data = self.parse_django_session(django_session.session_data)
 
@@ -102,7 +101,7 @@ class ThumbnailSerializer(object):
         file_path = self.params['file_path']
         size = self.params['size']
 
-        workspace = db_session.query(
+        workspace = self.db_session.query(
             Workspaces).filter_by(id=workspace_id).first()
         repo_id = workspace.repo_id
         workspace_owner = workspace.owner

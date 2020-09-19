@@ -3,10 +3,10 @@ import sys
 
 
 # environment
-# sys.path.append('/opt/seafile/lib/python3.6/site-packages')
-# os.environ['CCNET_CONF_DIR'] = '/opt/seafile/conf'
-# os.environ['SEAFILE_CONF_DIR'] = '/opt/seafile/conf/seafile'
-# os.environ['SEAFILE_CENTRAL_CONF_DIR'] = '/opt/seafile/conf'
+# sys.path.append('/opt/seatable-thumbnail/seafile/lib/python3.6/site-packages')
+# os.environ['CCNET_CONF_DIR'] = '/opt/seatable-thumbnail/seafile/ccnet'
+# os.environ['SEAFILE_CONF_DIR'] = '/opt/seatable-thumbnail/seafile/seafile-data'
+# os.environ['SEAFILE_CENTRAL_CONF_DIR'] = '/opt/seatable-thumbnail/conf'
 
 #
 ENABLE_VIDEO_THUMBNAIL = False
@@ -32,12 +32,12 @@ DATABASE_NAME = ''
 
 
 # dir
-LOG_DIR = 'logs/'
-THUMBNAIL_DIR = 'thumbnail/'
+# LOG_DIR = 'logs/'
+# THUMBNAIL_DIR = 'thumbnail/'
 
-# CONF_DIR = '/opt/seatable/conf/'
-# LOG_DIR = '/opt/seatable/logs/'
-# THUMBNAIL_DIR = '/opt/seatable/seahub-data/thumbnail/'
+CONF_DIR = '/opt/seatable-thumbnail/conf/'
+LOG_DIR = '/opt/seatable-thumbnail/logs/'
+THUMBNAIL_DIR = '/opt/seatable-thumbnail/thumbnail/'
 
 
 # size(MB) limit for generate thumbnail
@@ -52,5 +52,12 @@ THUMBNAIL_VIDEO_FRAME_TIME = 5
 # ======================== local settings ======================== #
 try:
     from local_settings import *
+except ImportError as e:
+    pass
+
+try:
+    if os.path.exists(CONF_DIR):
+        sys.path.insert(0, CONF_DIR)
+    from seatable_thumbnail_settings import *
 except ImportError as e:
     pass
