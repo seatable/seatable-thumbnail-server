@@ -1,5 +1,6 @@
 import logging
 
+from seatable_thumbnail import DBSession
 from seatable_thumbnail.serializers import ThumbnailSerializer
 from seatable_thumbnail.permissions import ThumbnailPermission
 from seatable_thumbnail.thumbnail import Thumbnail
@@ -34,12 +35,15 @@ class App:
 
 # ===== thumbnail =====
         elif 'thumbnail/' == request.url[:10]:
+            db_session = DBSession()
+
             # serializer
             try:
-                serializer = ThumbnailSerializer(request)
+                serializer = ThumbnailSerializer(db_session, request)
                 thumbnail_info = serializer.thumbnail_info
             except Exception as e:
                 logger.exception(e)
+                db_session.close()
                 response_start, response_body = gen_error_response(
                     400, 'Bad request.')
                 await send(response_start)
@@ -48,8 +52,9 @@ class App:
 
             # permission
             try:
-                permission = ThumbnailPermission(**thumbnail_info)
+                permission = ThumbnailPermission(db_session, **thumbnail_info)
                 if not permission.check():
+                    db_session.close()
                     response_start, response_body = gen_error_response(
                         403, 'Forbidden.')
                     await send(response_start)
@@ -57,11 +62,14 @@ class App:
                     return
             except Exception as e:
                 logger.exception(e)
+                db_session.close()
                 response_start, response_body = gen_error_response(
                     500, 'Internal server error.')
                 await send(response_start)
                 await send(response_body)
                 return
+
+            db_session.close()
 
             # cache
             try:

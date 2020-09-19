@@ -1,5 +1,4 @@
 from seaserv import ccnet_api
-from seatable_thumbnail import db_session
 from seatable_thumbnail.models import DTables, DTableShare, \
     DTableGroupShare, DTableViewUserShare, DTableViewGroupShare, \
     DTableExternalLinks
@@ -7,9 +6,10 @@ from seatable_thumbnail.constants import PERMISSION_READ, PERMISSION_READ_WRITE
 
 
 class ThumbnailPermission(object):
-    def __init__(self, **info):
+    def __init__(self, db_session, **info):
+        self.db_session = db_session
         self.__dict__.update(info)
-        self.dtable = db_session.query(
+        self.dtable = self.db_session.query(
             DTables).filter_by(uuid=self.dtable_uuid).first()
 
     def check(self):
@@ -54,7 +54,7 @@ class ThumbnailPermission(object):
                 return PERMISSION_READ_WRITE
 
         if dtable:  # check user's all permissions from `share`, `group-share` and checkout higher one
-            dtable_share = db_session.query(
+            dtable_share = self.db_session.query(
                 DTableShare).filter_by(dtable_id=dtable.id, to_user=username).first()
             if dtable_share and dtable_share.permission == PERMISSION_READ_WRITE:
                 return dtable_share.permission
@@ -65,7 +65,7 @@ class ThumbnailPermission(object):
             else:
                 groups = ccnet_api.get_groups(username, return_ancestors=True)
             group_ids = [group.id for group in groups]
-            group_permissions = db_session.query(
+            group_permissions = self.db_session.query(
                 DTableGroupShare.permission).filter(DTableGroupShare.dtable_id == dtable.id, DTableGroupShare.group_id.in_(group_ids)).all()
 
             for group_permission in group_permissions:
@@ -91,7 +91,7 @@ class ThumbnailPermission(object):
         username = self.username
         dtable = self.dtable
 
-        view_share = db_session.query(
+        view_share = self.db_session.query(
             DTableViewUserShare).filter_by(dtable_id=dtable.id, to_user=username).order_by(DTableViewUserShare.permission.desc()).first()
         if not view_share:
             return ''
@@ -103,7 +103,7 @@ class ThumbnailPermission(object):
         username = self.username
         dtable = self.dtable
 
-        view_shares = db_session.query(
+        view_shares = self.db_session.query(
             DTableViewGroupShare).filter_by(dtable_id=dtable.id).order_by(DTableViewGroupShare.permission.desc()).all()
 
         target_view_share = None
