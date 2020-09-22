@@ -3,11 +3,12 @@ import uuid
 import json
 import base64
 import mimetypes
+from datetime import datetime
 from email.utils import formatdate
 
 from seaserv import seafile_api
 import seatable_thumbnail.settings as settings
-from seatable_thumbnail.constants import FILE_EXT_TYPE_MAP, \
+from seatable_thumbnail.constants import TEXT_CONTENT_TYPE, FILE_EXT_TYPE_MAP, \
     IMAGE, PSD, VIDEO, XMIND
 from seatable_thumbnail.models import Workspaces, DjangoSession, DTableSystemPlugins
 
@@ -157,7 +158,7 @@ class PluginSerializer(object):
         plugin_name = self.request.url.split('/')[1]
         timestamp = self.request.query_dict['t'][0] if self.request.query_dict.get('t') else ''
         version = self.request.query_dict['version'][0] if self.request.query_dict.get('version') else ''
-        content_type = mimetypes.guess_type(path)
+        content_type = mimetypes.guess_type(path)[0] if mimetypes.guess_type(path) else TEXT_CONTENT_TYPE.decode('utf-8')
 
         self.params = {
             'path': path,
@@ -175,18 +176,21 @@ class PluginSerializer(object):
             DTableSystemPlugins).filter_by(name=plugin_name).first()
 
         file_path ='/' + plugin.name + path
-        repo_id = settings.PLUGINS_REPO_ID
-        file_id = seafile_api.get_file_id_by_path(repo_id, file_path)
+        file_name = os.path.basename(file_path)
+        file_id = seafile_api.get_file_id_by_path(settings.PLUGINS_REPO_ID, file_path)
         if not file_id:
             raise ValueError(404, 'file_id not found.')        
 
-        info = json.loads(plugin.info)
-        last_modified = info['last_modified']
+        file_info = json.loads(plugin.info)
+        last_modified_time = datetime.strptime(file_info['last_modified'][:-6], '%Y-%m-%dT%H:%M:%S')
+        last_modified = formatdate(int(last_modified_time.timestamp()), usegmt=True)
         etag = '"' + file_id + '"'
 
         self.resource = {
+            'file_path': file_path,
+            'file_name': file_name,
             'file_id': file_id,
-            'info': info,
+            'file_info': file_info,
             'last_modified': last_modified,
             'etag': etag,
         }

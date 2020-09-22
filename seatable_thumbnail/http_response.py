@@ -54,7 +54,7 @@ def gen_thumbnail_response(thumbnail, etag, last_modified):
 
 
 def gen_plugin_response(plugin, content_type, etag, last_modified):
-    response_start = gen_response_start(200, content_type)
+    response_start = gen_response_start(200, content_type.encode('utf-8'))
     response_body = gen_response_body(plugin)
 
     # cache

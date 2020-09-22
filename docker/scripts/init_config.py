@@ -95,6 +95,10 @@ nginx_common_config = """
     # location /thumbnail/ {
     #     proxy_pass https://thumbnail.seatable.cn/thumbnail/;
     # }
+    #
+    # location /dtable-plugins/ {
+    #     proxy_pass https://thumbnail.seatable.cn/dtable-plugins/;
+    # }
 
 }
 """
