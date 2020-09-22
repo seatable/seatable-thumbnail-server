@@ -49,6 +49,10 @@ THUMBNAIL_IMAGE_ORIGINAL_SIZE_LIMIT = 256
 THUMBNAIL_VIDEO_FRAME_TIME = 5
 
 
+# plugin
+PLUGINS_REPO_ID = ''
+
+
 # ======================== local settings ======================== #
 try:
     from local_settings import *
