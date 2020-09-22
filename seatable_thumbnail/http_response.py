@@ -51,3 +51,16 @@ def gen_thumbnail_response(thumbnail, etag, last_modified):
         response_start['headers'].append([b'Last-Modified', last_modified.encode('utf-8')])
 
     return response_start, response_body
+
+
+def gen_plugin_response(plugin, content_type, etag, last_modified):
+    response_start = gen_response_start(200, content_type)
+    response_body = gen_response_body(plugin)
+
+    # cache
+    if plugin:
+        response_start['headers'].append([b'Cache-Control', b'max-age=86400, public'])
+        response_start['headers'].append([b'ETag', etag.encode('utf-8')])
+        response_start['headers'].append([b'Last-Modified', last_modified.encode('utf-8')])
+
+    return response_start, response_body
