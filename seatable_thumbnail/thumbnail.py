@@ -36,8 +36,8 @@ class Thumbnail(object):
             if file_size > settings.THUMBNAIL_IMAGE_SIZE_LIMIT * 1024 * 1024:
                 raise AssertionError(400, 'file_size invalid.')
 
-            self.get_inner_path()
-            image_file = urllib.request.urlopen(self.inner_path)
+            inner_path = self.get_inner_path()
+            image_file = urllib.request.urlopen(inner_path)
             f = BytesIO(image_file.read())
 
             image = Image.open(f)
@@ -48,8 +48,8 @@ class Thumbnail(object):
             from psd_tools import PSDImage
 
             tmp_psd = os.path.join(tempfile.gettempdir(), self.file_id)
-            self.get_inner_path()
-            urllib.request.urlretrieve(self.inner_path, tmp_psd)
+            inner_path = self.get_inner_path()
+            urllib.request.urlretrieve(inner_path, tmp_psd)
 
             psd = PSDImage.open(tmp_psd)
             image = psd.topil()
@@ -63,8 +63,8 @@ class Thumbnail(object):
             tmp_image_path = os.path.join(
                 tempfile.gettempdir(), self.file_id + '.png')
             tmp_video = os.path.join(tempfile.gettempdir(), self.file_id)
-            self.get_inner_path()
-            urllib.request.urlretrieve(self.inner_path, tmp_video)
+            inner_path = self.get_inner_path()
+            urllib.request.urlretrieve(inner_path, tmp_video)
 
             clip = VideoFileClip(tmp_video)
             clip.save_frame(
@@ -77,8 +77,8 @@ class Thumbnail(object):
 
 # ===== xmind =====
         elif self.file_type == XMIND:
-            self.get_inner_path()
-            xmind_file = urllib.request.urlopen(self.inner_path)
+            inner_path = self.get_inner_path()
+            xmind_file = urllib.request.urlopen(inner_path)
             f = BytesIO(xmind_file.read())
             xmind_zip_file = zipfile.ZipFile(f, 'r')
             xmind_thumbnail = xmind_zip_file.read('Thumbnails/thumbnail.png')
@@ -94,6 +94,8 @@ class Thumbnail(object):
             raise ValueError(404, 'token not found.')
         self.inner_path = '%s/files/%s/%s' % (
             settings.INNER_FILE_SERVER_ROOT.rstrip('/'), token, urllib.parse.quote(self.file_name))
+
+        return self.inner_path
 
     def create_image_thumbnail(self, image):
         width, height = image.size

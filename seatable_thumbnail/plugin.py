@@ -14,8 +14,8 @@ class Plugin(object):
         self.get()
 
     def get(self):
-        self.get_inner_path()
-        response = requests.get(self.inner_path)
+        inner_path = self.get_inner_path()
+        response = requests.get(inner_path)
         self.body = response.content
 
     def get_inner_path(self):
@@ -25,3 +25,5 @@ class Plugin(object):
             raise ValueError(404, 'token not found.')
         self.inner_path = '%s/files/%s/%s' % (
             settings.INNER_FILE_SERVER_ROOT.rstrip('/'), token, urllib.parse.quote(self.file_name))
+
+        return self.inner_path
