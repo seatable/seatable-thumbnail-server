@@ -1,12 +1,14 @@
 import logging
 
 from seatable_thumbnail import DBSession
-from seatable_thumbnail.serializers import ThumbnailSerializer
+from seatable_thumbnail.serializers import ThumbnailSerializer, PluginSerializer
 from seatable_thumbnail.permissions import ThumbnailPermission
 from seatable_thumbnail.thumbnail import Thumbnail
+from seatable_thumbnail.plugin import Plugin
 from seatable_thumbnail.http_request import HTTPRequest
-from seatable_thumbnail.http_response import gen_error_response, \
+from seatable_thumbnail.http_response import gen_error_response, gen_plugin_response, \
     gen_text_response, gen_thumbnail_response, gen_cache_response
+from seatable_thumbnail.utils import cache_check
 
 logger = logging.getLogger(__name__)
 
@@ -73,16 +75,7 @@ class App:
 
             # cache
             try:
-                etag = thumbnail_info.get('etag')
-                if_none_match_headers = request.headers.get('if-none-match')
-                if_none_match = if_none_match_headers[0] if if_none_match_headers else ''
-
-                last_modified = thumbnail_info.get('last_modified')
-                if_modified_since_headers = request.headers.get('if-modified-since')
-                if_modified_since = if_modified_since_headers[0] if if_modified_since_headers else ''
-
-                if (if_none_match and if_none_match == etag) \
-                        or (if_modified_since and if_modified_since == last_modified):
+                if cache_check(request, thumbnail_info):
                     response_start, response_body = gen_cache_response()
                     await send(response_start)
                     await send(response_body)
@@ -99,6 +92,56 @@ class App:
 
                 response_start, response_body = gen_thumbnail_response(
                     body, etag, last_modified)
+                await send(response_start)
+                await send(response_body)
+                return
+            except Exception as e:
+                logger.exception(e)
+                response_start, response_body = gen_error_response(
+                    500, 'Internal server error.')
+                await send(response_start)
+                await send(response_body)
+                return
+
+# ===== plugin =====
+        elif 'dtable-plugins/' == request.url[:15]:
+            db_session = DBSession()
+
+            # serializer
+            try:
+                serializer = PluginSerializer(db_session, request)
+                plugin_info = serializer.plugin_info
+            except Exception as e:
+                logger.exception(e)
+                db_session.close()
+                response_start, response_body = gen_error_response(
+                    400, 'Bad request.')
+                await send(response_start)
+                await send(response_body)
+                return
+
+            db_session.close()
+
+            # cache
+            try:
+                if cache_check(request, plugin_info):
+                    response_start, response_body = gen_cache_response()
+                    await send(response_start)
+                    await send(response_body)
+                    return
+            except Exception as e:
+                logger.exception(e)
+
+            # get
+            try:
+                plugin = Plugin(**plugin_info)
+                body = plugin.body
+                content_type = plugin.content_type
+                last_modified = plugin.last_modified
+                etag = plugin.etag
+
+                response_start, response_body = gen_plugin_response(
+                    body, content_type, etag, last_modified)
                 await send(response_start)
                 await send(response_body)
                 return

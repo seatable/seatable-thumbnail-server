@@ -2,13 +2,15 @@ import os
 import uuid
 import json
 import base64
+import mimetypes
+from datetime import datetime
 from email.utils import formatdate
 
-from seaserv import seafile_api
 import seatable_thumbnail.settings as settings
-from seatable_thumbnail.constants import FILE_EXT_TYPE_MAP, \
+from seatable_thumbnail.constants import TEXT_CONTENT_TYPE, FILE_EXT_TYPE_MAP, \
     IMAGE, PSD, VIDEO, XMIND
-from seatable_thumbnail.models import Workspaces, DjangoSession
+from seatable_thumbnail.models import Workspaces, DjangoSession, DTableSystemPlugins
+from seatable_thumbnail.utils import get_file_id
 
 
 class ThumbnailSerializer(object):
@@ -22,7 +24,6 @@ class ThumbnailSerializer(object):
         self.params_check()
         self.session_check()
         self.resource_check()
-        self.gen_thumbnail_info()
 
     def gen_thumbnail_info(self):
         thumbnail_info = {}
@@ -105,9 +106,7 @@ class ThumbnailSerializer(object):
             Workspaces).filter_by(id=workspace_id).first()
         repo_id = workspace.repo_id
         workspace_owner = workspace.owner
-        file_id = seafile_api.get_file_id_by_path(repo_id, file_path)
-        if not file_id:
-            raise ValueError(404, 'file_id not found.')
+        file_id = get_file_id(repo_id, file_path)
 
         thumbnail_dir = os.path.join(settings.THUMBNAIL_DIR, str(size))
         thumbnail_path = os.path.join(thumbnail_dir, file_id)
@@ -133,3 +132,61 @@ class ThumbnailSerializer(object):
             return True, last_modified
         else:
             return False, ''
+
+
+class PluginSerializer(object):
+    def __init__(self, db_session, request):
+        self.db_session = db_session
+        self.request = request
+        self.check()
+        self.gen_plugin_info()
+
+    def check(self):
+        self.params_check()
+        self.resource_check()
+
+    def gen_plugin_info(self):
+        plugin_info = {}
+        plugin_info.update(self.params)
+        plugin_info.update(self.resource)
+        self.plugin_info = plugin_info
+
+    def params_check(self):
+        plugin_name = self.request.url.split('/')[1]
+        path = self.request.query_dict['path'][0]
+        timestamp = self.request.query_dict['t'][0] if self.request.query_dict.get('t') else ''
+        version = self.request.query_dict['version'][0] if self.request.query_dict.get('version') else ''
+        content_type = mimetypes.guess_type(path)[0] if mimetypes.guess_type(path) else TEXT_CONTENT_TYPE.decode('utf-8')
+
+        self.params = {
+            'path': path,
+            'plugin_name': plugin_name,
+            'timestamp': timestamp,
+            'version': version,
+            'content_type': content_type,
+        }
+
+    def resource_check(self):
+        path = self.params['path']
+        plugin_name = self.params['plugin_name']
+
+        plugin = self.db_session.query(
+            DTableSystemPlugins).filter_by(name=plugin_name).first()
+
+        file_path ='/' + plugin.name + path
+        file_name = os.path.basename(file_path)
+        file_id = get_file_id(settings.PLUGINS_REPO_ID, file_path)
+
+        file_info = json.loads(plugin.info)
+        last_modified_time = datetime.strptime(file_info['last_modified'][:-6], '%Y-%m-%dT%H:%M:%S')
+        last_modified = formatdate(int(last_modified_time.timestamp()), usegmt=True)
+        etag = '"' + file_id + '"'
+
+        self.resource = {
+            'file_path': file_path,
+            'file_name': file_name,
+            'file_id': file_id,
+            'file_info': file_info,
+            'last_modified': last_modified,
+            'etag': etag,
+        }

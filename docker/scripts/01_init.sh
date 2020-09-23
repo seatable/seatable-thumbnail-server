@@ -28,7 +28,7 @@ if [[ ! -e /shared/seatable-thumbnail/ccnet ]]; then
     mkdir /shared/seatable-thumbnail/ccnet
 fi
 
-if [[ ! -e /shared/seatable-thumbnail/seafile-data ]]; then
+if [[ ! -e /shared/seatable-thumbnail/seafile-data && ! -e /opt/seatable-thumbnail/seafile-data ]]; then
     mkdir /shared/seatable-thumbnail/seafile-data
 fi
 

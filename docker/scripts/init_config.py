@@ -60,6 +60,8 @@ MYSQL_PASSWORD = 'password'
 MYSQL_HOST = 'host'
 MYSQL_PORT = '3306'
 DATABASE_NAME = 'db_name'
+
+PLUGINS_REPO_ID = ''
 """
 
 if not os.path.exists(seatable_thumbnail_config_path):
@@ -94,6 +96,10 @@ nginx_common_config = """
     # cloud.seatable.cn
     # location /thumbnail/ {
     #     proxy_pass https://thumbnail.seatable.cn/thumbnail/;
+    # }
+    #
+    # location /dtable-plugins/ {
+    #     proxy_pass https://thumbnail.seatable.cn/dtable-plugins/;
     # }
 
 }

@@ -91,3 +91,12 @@ class DjangoSession(Base):
     session_key = Column(String(40), primary_key=True)
     session_data = Column(Text)
     expire_date = Column(DateTime)
+
+
+class DTableSystemPlugins(Base):
+    __tablename__ = 'dtable_system_plugin'
+    id = Column(Integer, primary_key=True)
+    added_by = Column(String(255))
+    added_time = Column(DateTime)
+    info = Column(Text)
+    name = Column(String(255), index=True)

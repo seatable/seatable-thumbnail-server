@@ -8,10 +8,11 @@ from io import BytesIO
 from PIL import Image
 from email.utils import formatdate
 
-from seaserv import get_repo, get_file_size, seafile_api
+from seaserv import get_repo, get_file_size
 import seatable_thumbnail.settings as settings
 from seatable_thumbnail.constants import IMAGE_MODES, EMPTY_BYTES,\
     THUMBNAIL_EXTENSION, IMAGE, PSD, VIDEO, XMIND
+from seatable_thumbnail.utils import get_inner_path
 
 
 class Thumbnail(object):
@@ -36,8 +37,8 @@ class Thumbnail(object):
             if file_size > settings.THUMBNAIL_IMAGE_SIZE_LIMIT * 1024 * 1024:
                 raise AssertionError(400, 'file_size invalid.')
 
-            self.get_inner_path()
-            image_file = urllib.request.urlopen(self.inner_path)
+            inner_path = get_inner_path(self.repo_id, self.file_id, self.file_name)
+            image_file = urllib.request.urlopen(inner_path)
             f = BytesIO(image_file.read())
 
             image = Image.open(f)
@@ -48,8 +49,8 @@ class Thumbnail(object):
             from psd_tools import PSDImage
 
             tmp_psd = os.path.join(tempfile.gettempdir(), self.file_id)
-            self.get_inner_path()
-            urllib.request.urlretrieve(self.inner_path, tmp_psd)
+            inner_path = get_inner_path(self.repo_id, self.file_id, self.file_name)
+            urllib.request.urlretrieve(inner_path, tmp_psd)
 
             psd = PSDImage.open(tmp_psd)
             image = psd.topil()
@@ -63,8 +64,8 @@ class Thumbnail(object):
             tmp_image_path = os.path.join(
                 tempfile.gettempdir(), self.file_id + '.png')
             tmp_video = os.path.join(tempfile.gettempdir(), self.file_id)
-            self.get_inner_path()
-            urllib.request.urlretrieve(self.inner_path, tmp_video)
+            inner_path = get_inner_path(self.repo_id, self.file_id, self.file_name)
+            urllib.request.urlretrieve(inner_path, tmp_video)
 
             clip = VideoFileClip(tmp_video)
             clip.save_frame(
@@ -77,8 +78,8 @@ class Thumbnail(object):
 
 # ===== xmind =====
         elif self.file_type == XMIND:
-            self.get_inner_path()
-            xmind_file = urllib.request.urlopen(self.inner_path)
+            inner_path = get_inner_path(self.repo_id, self.file_id, self.file_name)
+            xmind_file = urllib.request.urlopen(inner_path)
             f = BytesIO(xmind_file.read())
             xmind_zip_file = zipfile.ZipFile(f, 'r')
             xmind_thumbnail = xmind_zip_file.read('Thumbnails/thumbnail.png')
@@ -86,14 +87,6 @@ class Thumbnail(object):
 
             image = Image.open(f)
             self.create_image_thumbnail(image)
-
-    def get_inner_path(self):
-        token = seafile_api.get_fileserver_access_token(
-            self.repo_id, self.file_id, 'view', '', use_onetime=True)
-        if not token:
-            raise ValueError(404, 'token not found.')
-        self.inner_path = '%s/files/%s/%s' % (
-            settings.INNER_FILE_SERVER_ROOT.rstrip('/'), token, urllib.parse.quote(self.file_name))
 
     def create_image_thumbnail(self, image):
         width, height = image.size

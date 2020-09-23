@@ -3,6 +3,7 @@ pillow
 pymysql
 sqlalchemy
 future  # seaf-server
+requests
 
 # psd_tools
 # moviepy
