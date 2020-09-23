@@ -8,6 +8,7 @@ from seatable_thumbnail.plugin import Plugin
 from seatable_thumbnail.http_request import HTTPRequest
 from seatable_thumbnail.http_response import gen_error_response, gen_plugin_response, \
     gen_text_response, gen_thumbnail_response, gen_cache_response
+from seatable_thumbnail.utils import cache_check
 
 logger = logging.getLogger(__name__)
 
@@ -74,16 +75,7 @@ class App:
 
             # cache
             try:
-                etag = thumbnail_info.get('etag')
-                if_none_match_headers = request.headers.get('if-none-match')
-                if_none_match = if_none_match_headers[0] if if_none_match_headers else ''
-
-                last_modified = thumbnail_info.get('last_modified')
-                if_modified_since_headers = request.headers.get('if-modified-since')
-                if_modified_since = if_modified_since_headers[0] if if_modified_since_headers else ''
-
-                if (if_none_match and if_none_match == etag) \
-                        or (if_modified_since and if_modified_since == last_modified):
+                if cache_check(request, thumbnail_info):
                     response_start, response_body = gen_cache_response()
                     await send(response_start)
                     await send(response_body)
@@ -132,16 +124,7 @@ class App:
 
             # cache
             try:
-                etag = plugin_info.get('etag')
-                if_none_match_headers = request.headers.get('if-none-match')
-                if_none_match = if_none_match_headers[0] if if_none_match_headers else ''
-
-                last_modified = plugin_info.get('last_modified')
-                if_modified_since_headers = request.headers.get('if-modified-since')
-                if_modified_since = if_modified_since_headers[0] if if_modified_since_headers else ''
-
-                if (if_none_match and if_none_match == etag) \
-                        or (if_modified_since and if_modified_since == last_modified):
+                if cache_check(request, plugin_info):
                     response_start, response_body = gen_cache_response()
                     await send(response_start)
                     await send(response_body)

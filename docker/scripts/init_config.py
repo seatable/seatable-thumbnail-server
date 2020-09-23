@@ -60,6 +60,8 @@ MYSQL_PASSWORD = 'password'
 MYSQL_HOST = 'host'
 MYSQL_PORT = '3306'
 DATABASE_NAME = 'db_name'
+
+PLUGINS_REPO_ID = ''
 """
 
 if not os.path.exists(seatable_thumbnail_config_path):

@@ -6,11 +6,11 @@ import mimetypes
 from datetime import datetime
 from email.utils import formatdate
 
-from seaserv import seafile_api
 import seatable_thumbnail.settings as settings
 from seatable_thumbnail.constants import TEXT_CONTENT_TYPE, FILE_EXT_TYPE_MAP, \
     IMAGE, PSD, VIDEO, XMIND
 from seatable_thumbnail.models import Workspaces, DjangoSession, DTableSystemPlugins
+from seatable_thumbnail.utils import get_file_id
 
 
 class ThumbnailSerializer(object):
@@ -31,13 +31,6 @@ class ThumbnailSerializer(object):
         thumbnail_info.update(self.session_data)
         thumbnail_info.update(self.resource)
         self.thumbnail_info = thumbnail_info
-
-    def get_file_id(self):
-        self.file_id = seafile_api.get_file_id_by_path(self.repo_id, self.file_path)
-        if not self.file_id:
-            raise ValueError(404, 'file_id not found.')
-
-        return self.file_id
 
     def parse_django_session(self, session_data):
         # only for django 1.11.x
@@ -113,9 +106,7 @@ class ThumbnailSerializer(object):
             Workspaces).filter_by(id=workspace_id).first()
         repo_id = workspace.repo_id
         workspace_owner = workspace.owner
-        self.repo_id = repo_id
-        self.file_path = file_path
-        file_id = self.get_file_id()
+        file_id = get_file_id(repo_id, file_path)
 
         thumbnail_dir = os.path.join(settings.THUMBNAIL_DIR, str(size))
         thumbnail_path = os.path.join(thumbnail_dir, file_id)
@@ -160,13 +151,6 @@ class PluginSerializer(object):
         plugin_info.update(self.resource)
         self.plugin_info = plugin_info
 
-    def get_file_id(self):
-        self.file_id = seafile_api.get_file_id_by_path(self.repo_id, self.file_path)
-        if not self.file_id:
-            raise ValueError(404, 'file_id not found.')
-
-        return self.file_id
-
     def params_check(self):
         plugin_name = self.request.url.split('/')[1]
         path = self.request.query_dict['path'][0]
@@ -191,9 +175,7 @@ class PluginSerializer(object):
 
         file_path ='/' + plugin.name + path
         file_name = os.path.basename(file_path)
-        self.repo_id = settings.PLUGINS_REPO_ID
-        self.file_path = file_path
-        file_id = self.get_file_id()
+        file_id = get_file_id(settings.PLUGINS_REPO_ID, file_path)
 
         file_info = json.loads(plugin.info)
         last_modified_time = datetime.strptime(file_info['last_modified'][:-6], '%Y-%m-%dT%H:%M:%S')

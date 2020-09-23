@@ -1,5 +1,5 @@
 FROM phusion/baseimage:0.11
-# docker.seafile.top/seafile-dev/seatable-thumbnail-server:1.3.0
+# docker.seafile.top/seafile-dev/seatable-thumbnail-server:1.x.x
 
 # Aliyun ubuntu source
 RUN rm -rf /etc/apt/sources.list
@@ -15,7 +15,7 @@ RUN apt-get install -y nginx
 RUN apt-get install -y mysql-client
 
 # set python3.6 global
-RUN apt-get install -y python3 python3-pip python3-setuptools python3-ldap
+RUN apt-get install -y python3 python3-pip
 RUN python3.6 -m pip install --upgrade pip -i https://mirrors.aliyun.com/pypi/simple && rm -r /root/.cache/pip
 RUN rm -f /usr/bin/python && \
     rm -f /usr/bin/python3 && \
@@ -26,7 +26,7 @@ RUN rm -f /usr/bin/python && \
     ln -s /usr/local/bin/pip3.6 /usr/bin/pip && \
     ln -s /usr/local/bin/pip3.6 /usr/bin/pip3
 
-RUN pip3 install uvicorn pillow pymysql sqlalchemy future \
+RUN pip3 install uvicorn pillow pymysql sqlalchemy future requests \
     -i https://mirrors.aliyun.com/pypi/simple && rm -r /root/.cache/pip
 
 
