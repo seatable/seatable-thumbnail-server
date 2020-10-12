@@ -127,7 +127,7 @@ def init_https():
             os.system('openssl req -new -sha256 -key %s -subj "/CN=%s" > %s' %
                       (domain_key, SEATABLE_THUMBNAIL_SERVER_HOSTNAME, domain_csr))
 
-        ret = os.system('python3 /templates/acme-tiny-master/acme_tiny.py --account-key %s --csr %s --acme-dir /var/www/challenges/ > %s' %
+        ret = os.system('python3 /scripts/acme-tiny-master/acme_tiny.py --account-key %s --csr %s --acme-dir /var/www/challenges/ > %s' %
                         (account_key, domain_csr, signed_chain_crt))
 
         if ret != 0:
