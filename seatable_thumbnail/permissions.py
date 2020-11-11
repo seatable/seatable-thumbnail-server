@@ -21,18 +21,19 @@ class ThumbnailPermission(object):
         # 2. through dtable perm, including dtable share
         # 3. through view share perm
 
-        if not hasattr(self, 'username'):
-            if self.can_access_image_through_external_link():
-                return True
-        else:
-            if 'r' in self.check_dtable_permission():
-                return True
-            if 'r' in self.get_view_share_permission():
-                return True
+        if self.can_access_image_through_external_link():
+            return True
+        if 'r' in self.check_dtable_permission():
+            return True
+        if 'r' in self.get_view_share_permission():
+            return True
 
         return False
 
     def can_access_image_through_external_link(self):
+        if not hasattr(self, 'external_link'):
+            return False
+
         return self.external_link['dtable_uuid'] == self.dtable_uuid
 
     def check_dtable_permission(self):
