@@ -1,5 +1,6 @@
 import os
 import time
+import requests
 import urllib.request
 import urllib.parse
 import zipfile
@@ -142,3 +143,28 @@ class Thumbnail(object):
             image = image.rotate(90, expand=True)
 
         return image
+
+
+class Plugin(object):
+    def __init__(self, **info):
+        self.__dict__.update(info)
+        self.body = EMPTY_BYTES
+        self.get()
+
+    def get(self):
+        inner_path = get_inner_path(
+            settings.PLUGINS_REPO_ID, self.file_id, self.file_name)
+        response = requests.get(inner_path)
+        self.body = response.content
+
+
+class Asset(object):
+    def __init__(self, **info):
+        self.__dict__.update(info)
+        self.body = EMPTY_BYTES
+        self.get()
+
+    def get(self):
+        inner_path = get_inner_path(self.repo_id, self.file_id, self.file_name)
+        response = requests.get(inner_path)
+        self.body = response.content

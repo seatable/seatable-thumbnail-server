@@ -1,3 +1,5 @@
+import json
+import base64
 import urllib.request
 import urllib.parse
 
@@ -38,3 +40,11 @@ def cache_check(request, info):
         return True
     else:
         return False
+
+
+def parse_django_session(session_data):
+    # only for django 1.11.*
+    encoded_data = base64.b64decode(session_data)
+    hash_key, serialized = encoded_data.split(b':', 1)
+
+    return json.loads(serialized.decode('latin-1'))

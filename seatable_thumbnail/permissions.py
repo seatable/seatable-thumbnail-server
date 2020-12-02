@@ -1,8 +1,8 @@
 from seaserv import ccnet_api
 from seatable_thumbnail.models import DTables, DTableShare, \
-    DTableGroupShare, DTableViewUserShare, DTableViewGroupShare, \
-    DTableExternalLinks
-from seatable_thumbnail.constants import PERMISSION_READ, PERMISSION_READ_WRITE
+    DTableGroupShare, DTableViewUserShare, DTableViewGroupShare
+from seatable_thumbnail.constants import PERMISSION_READ, PERMISSION_READ_WRITE, \
+    IMAGE
 
 
 class AssetPermission(object):
@@ -13,6 +13,10 @@ class AssetPermission(object):
             DTables).filter_by(uuid=self.dtable_uuid).first()
 
     def check(self):
+        # login required for normal file
+        if self.file_type != IMAGE and not hasattr(self, 'username'):
+            return False
+
         return self.has_dtable_asset_read_permission()
 
     def has_dtable_asset_read_permission(self):

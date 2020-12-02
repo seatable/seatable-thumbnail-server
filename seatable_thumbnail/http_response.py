@@ -64,3 +64,10 @@ def gen_plugin_response(plugin, content_type, etag, last_modified):
         response_start['headers'].append([b'Last-Modified', last_modified.encode('utf-8')])
 
     return response_start, response_body
+
+
+def gen_asset_response(asset, content_type):
+    response_start = gen_response_start(200, content_type.encode('utf-8'))
+    response_body = gen_response_body(asset)
+
+    return response_start, response_body
