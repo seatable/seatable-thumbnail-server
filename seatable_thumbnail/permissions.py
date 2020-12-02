@@ -5,7 +5,7 @@ from seatable_thumbnail.models import DTables, DTableShare, \
 from seatable_thumbnail.constants import PERMISSION_READ, PERMISSION_READ_WRITE
 
 
-class ThumbnailPermission(object):
+class AssetPermission(object):
     def __init__(self, db_session, **info):
         self.db_session = db_session
         self.__dict__.update(info)

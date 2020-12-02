@@ -2,7 +2,7 @@ import logging
 
 from seatable_thumbnail import DBSession
 from seatable_thumbnail.serializers import ThumbnailSerializer, PluginSerializer
-from seatable_thumbnail.permissions import ThumbnailPermission
+from seatable_thumbnail.permissions import AssetPermission
 from seatable_thumbnail.thumbnail import Thumbnail
 from seatable_thumbnail.plugin import Plugin
 from seatable_thumbnail.http_request import HTTPRequest
@@ -54,7 +54,7 @@ class App:
 
             # permission
             try:
-                permission = ThumbnailPermission(db_session, **thumbnail_info)
+                permission = AssetPermission(db_session, **thumbnail_info)
                 if not permission.check():
                     db_session.close()
                     response_start, response_body = gen_error_response(
