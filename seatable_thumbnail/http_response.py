@@ -66,8 +66,15 @@ def gen_plugin_response(plugin, content_type, etag, last_modified):
     return response_start, response_body
 
 
-def gen_asset_response(asset, content_type):
-    response_start = gen_response_start(200, content_type.encode('utf-8'))
-    response_body = gen_response_body(asset)
+def gen_asset_response(asset_url):
+    response_start = {
+        'type': 'http.response.start',
+        'status': 302,
+        'headers': [
+            [b'Content-Type', b'text/html'],
+            [b'Location', asset_url.encode('utf-8')],
+        ]
+    }
+    response_body = gen_response_body(EMPTY_BYTES)
 
     return response_start, response_body

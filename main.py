@@ -193,11 +193,9 @@ class App:
             # get
             try:
                 asset = Asset(**asset_info)
-                body = asset.body
-                content_type = asset.content_type
+                asset_url = asset.asset_url
 
-                response_start, response_body = gen_asset_response(
-                    body, content_type)
+                response_start, response_body = gen_asset_response(asset_url)
                 await send(response_start)
                 await send(response_body)
                 return

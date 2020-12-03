@@ -15,15 +15,16 @@ def get_file_id(repo_id, file_path):
     return file_id
 
 
-def get_inner_path(repo_id, file_id, file_name):
+def get_file_seaf_url(repo_id, file_id, file_name, is_inner=True):
     token = seafile_api.get_fileserver_access_token(
         repo_id, file_id, 'view', '', use_onetime=True)
     if not token:
         raise ValueError(404, 'token not found.')
-    inner_path = '%s/files/%s/%s' % (
-        settings.INNER_FILE_SERVER_ROOT.rstrip('/'), token, urllib.parse.quote(file_name))
 
-    return inner_path
+    file_server_url = settings.INNER_FILE_SERVER_ROOT.rstrip('/') if is_inner else settings.FILE_SERVER_ROOT.rstrip('/')
+    file_path = '%s/files/%s/%s' % (file_server_url, token, urllib.parse.quote(file_name))
+
+    return file_path
 
 
 def cache_check(request, info):

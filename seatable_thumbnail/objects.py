@@ -13,7 +13,7 @@ from seaserv import get_repo, get_file_size
 import seatable_thumbnail.settings as settings
 from seatable_thumbnail.constants import IMAGE_MODES, EMPTY_BYTES,\
     THUMBNAIL_EXTENSION, IMAGE, PSD, VIDEO, XMIND
-from seatable_thumbnail.utils import get_inner_path
+from seatable_thumbnail.utils import get_file_seaf_url
 
 
 class Thumbnail(object):
@@ -38,7 +38,7 @@ class Thumbnail(object):
             if file_size > settings.THUMBNAIL_IMAGE_SIZE_LIMIT * 1024 * 1024:
                 raise AssertionError(400, 'file_size invalid.')
 
-            inner_path = get_inner_path(self.repo_id, self.file_id, self.file_name)
+            inner_path = get_file_seaf_url(self.repo_id, self.file_id, self.file_name)
             image_file = urllib.request.urlopen(inner_path)
             f = BytesIO(image_file.read())
 
@@ -50,7 +50,7 @@ class Thumbnail(object):
             from psd_tools import PSDImage
 
             tmp_psd = os.path.join(tempfile.gettempdir(), self.file_id)
-            inner_path = get_inner_path(self.repo_id, self.file_id, self.file_name)
+            inner_path = get_file_seaf_url(self.repo_id, self.file_id, self.file_name)
             urllib.request.urlretrieve(inner_path, tmp_psd)
 
             psd = PSDImage.open(tmp_psd)
@@ -65,7 +65,7 @@ class Thumbnail(object):
             tmp_image_path = os.path.join(
                 tempfile.gettempdir(), self.file_id + '.png')
             tmp_video = os.path.join(tempfile.gettempdir(), self.file_id)
-            inner_path = get_inner_path(self.repo_id, self.file_id, self.file_name)
+            inner_path = get_file_seaf_url(self.repo_id, self.file_id, self.file_name)
             urllib.request.urlretrieve(inner_path, tmp_video)
 
             clip = VideoFileClip(tmp_video)
@@ -79,7 +79,7 @@ class Thumbnail(object):
 
 # ===== xmind =====
         elif self.file_type == XMIND:
-            inner_path = get_inner_path(self.repo_id, self.file_id, self.file_name)
+            inner_path = get_file_seaf_url(self.repo_id, self.file_id, self.file_name)
             xmind_file = urllib.request.urlopen(inner_path)
             f = BytesIO(xmind_file.read())
             xmind_zip_file = zipfile.ZipFile(f, 'r')
@@ -152,7 +152,7 @@ class Plugin(object):
         self.get()
 
     def get(self):
-        inner_path = get_inner_path(
+        inner_path = get_file_seaf_url(
             settings.PLUGINS_REPO_ID, self.file_id, self.file_name)
         response = requests.get(inner_path)
         self.body = response.content
@@ -165,6 +165,5 @@ class Asset(object):
         self.get()
 
     def get(self):
-        inner_path = get_inner_path(self.repo_id, self.file_id, self.file_name)
-        response = requests.get(inner_path)
-        self.body = response.content
+        outer_path = get_file_seaf_url(self.repo_id, self.file_id, self.file_name, is_inner=False)
+        self.asset_url = outer_path
