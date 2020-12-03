@@ -73,6 +73,7 @@ def gen_asset_response(asset_url):
         'headers': [
             [b'Content-Type', b'text/html'],
             [b'Location', asset_url.encode('utf-8')],
+            [b'Access-Control-Allow-Origin', b'*'],
         ]
     }
     response_body = gen_response_body(EMPTY_BYTES)

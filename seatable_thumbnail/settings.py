@@ -21,7 +21,7 @@ SESSION_KEY = 'sessionid'
 # url
 URL_PREFIX = '/'
 INNER_FILE_SERVER_ROOT = 'http://127.0.0.1:8082'
-FILE_SERVER_ROOT = ''
+FILE_SERVER_ROOT = 'https://thumbnail.seatable.cn/seafhttp'
 
 
 # mysql

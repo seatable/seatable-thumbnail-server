@@ -213,7 +213,6 @@ class AssetSerializer(object):
         file_name = os.path.basename(file_path)
         file_ext = os.path.splitext(file_name)[1][1:].lower()
         file_type = FILE_EXT_TYPE_MAP.get(file_ext, 'Unknown')
-        content_type = mimetypes.guess_type(file_name)[0] or TEXT_CONTENT_TYPE.decode('utf-8')
 
         # url check
         url_split = self.request.url.split('/', 4)
@@ -234,7 +233,6 @@ class AssetSerializer(object):
             'file_name': file_name,
             'file_ext': file_ext,
             'file_type': file_type,
-            'content_type': content_type,
         }
 
     def session_check(self):
