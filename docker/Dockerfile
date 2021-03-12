@@ -38,8 +38,6 @@ COPY src/seatable-thumbnail-server /opt/seatable-thumbnail/seatable-thumbnail-se
 
 RUN ln -sf /opt/seatable-thumbnail/seafile/lib/libsearpc.so.1.0.2 /opt/seatable-thumbnail/seafile/lib/libsearpc.so.1
 RUN ln -sf /opt/seatable-thumbnail/seafile/lib/libsearpc.so.1.0.2 /opt/seatable-thumbnail/seafile/lib/libsearpc.so
-RUN ln -sf /opt/seatable-thumbnail/seafile/lib/libccnet.so.0.0.0 /opt/seatable-thumbnail/seafile/lib/libccnet.so.0
-RUN ln -sf /opt/seatable-thumbnail/seafile/lib/libccnet.so.0.0.0 /opt/seatable-thumbnail/seafile/lib/libccnet.so
 
 
 # scripts

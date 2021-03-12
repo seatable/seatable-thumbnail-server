@@ -1,7 +1,7 @@
 from seaserv import ccnet_api
 from seatable_thumbnail.models import DTables, DTableShare, \
     DTableGroupShare, DTableViewUserShare, DTableViewGroupShare, \
-    DTableExternalLinks
+    DTableExternalLinks, DTableCollectionTables
 from seatable_thumbnail.constants import PERMISSION_READ, PERMISSION_READ_WRITE
 
 
@@ -22,6 +22,8 @@ class ThumbnailPermission(object):
         # 3. through view share perm
 
         if self.can_access_image_through_external_link():
+            return True
+        if self.has_collection_table_permission():
             return True
         if 'r' in self.check_dtable_permission():
             return True
@@ -136,3 +138,15 @@ class ThumbnailPermission(object):
             return ccnet_api.is_group_user(group_id, email, in_structure=False)
         else:
             return ccnet_api.is_group_user(group_id, email)
+
+    def has_collection_table_permission(self):
+        if not hasattr(self, 'collection_table'):
+            return False
+
+        token = self.collection_table['token']
+        obj = self.db_session.query(
+                DTableCollectionTables).filter_by(token=token).first()
+        if not obj:
+            return False
+
+        return self.collection_table['dtable_uuid'] == self.dtable_uuid

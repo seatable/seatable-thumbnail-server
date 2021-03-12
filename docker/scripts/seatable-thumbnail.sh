@@ -1,7 +1,6 @@
 #!/bin/bash
 
 function stop_server() {
-    pkill -9 -f ccnet-server
     pkill -9 -f seaf-server
     pkill -9 -f uvicorn
     pkill -9 -f multiprocessing
@@ -42,9 +41,6 @@ function start_server() {
     sleep 0.5
 
     set_env
-
-    ccnet-server -F /opt/seatable-thumbnail/conf -c /opt/seatable-thumbnail/ccnet -f /opt/seatable-thumbnail/logs/ccnet.log -d -L /opt/seatable-thumbnail -P /opt/seatable-thumbnail/pids/ccnet.pid - &
-    sleep 0.2
 
     seaf-server -F /opt/seatable-thumbnail/conf -c /opt/seatable-thumbnail/ccnet -d /opt/seatable-thumbnail/seafile-data -l /opt/seatable-thumbnail/logs/seafile.log -L /opt/seatable-thumbnail -P /opt/seatable-thumbnail/pids/seafile.pid - &
     sleep 0.2

@@ -100,3 +100,14 @@ class DTableSystemPlugins(Base):
     added_time = Column(DateTime)
     info = Column(Text)
     name = Column(String(255), index=True)
+
+
+class DTableCollectionTables(Base):
+    __tablename__ = 'dtable_collection_tables'
+    id = Column(Integer, primary_key=True)
+    username = Column(String(255), index=True)
+    workspace_id = Column(Integer, index=True)
+    dtable_uuid = Column(String(36), index=True)
+    config = Column(Text, nullable=True)
+    token = Column(String(36), unique=True)
+    created_at = Column(DateTime, nullable=True)
