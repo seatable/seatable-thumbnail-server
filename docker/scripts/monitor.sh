@@ -29,16 +29,6 @@ function check_process() {
 }
 
 # monitor
-function monitor_ccnet() {
-    process_name="ccnet-server"
-    check_num=$(check_process $process_name)
-    if [ $check_num -eq 0 ]; then
-        log "Start $process_name"
-        ccnet-server -F /opt/seatable-thumbnail/conf -c /opt/seatable-thumbnail/ccnet -f /opt/seatable-thumbnail/logs/ccnet.log -d -L /opt/seatable-thumbnail -P /opt/seatable-thumbnail/pids/ccnet.pid - &
-        sleep 0.2
-    fi
-}
-
 function monitor_seafile() {
     process_name="seaf-server"
     check_num=$(check_process $process_name)
@@ -66,7 +56,6 @@ function monitor_seatable_thumbnail() {
 log "Start Monitor"
 
 while [ 1 ]; do
-    monitor_ccnet
     monitor_seafile
     monitor_seatable_thumbnail
 

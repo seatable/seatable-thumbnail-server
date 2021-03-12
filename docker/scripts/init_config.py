@@ -140,19 +140,30 @@ def init_https():
         # crontab letsencrypt renew cert
         with open('/opt/ssl/renew_cert', 'w') as f:
             f.write('0 1 1 * * /scripts/renew_cert.sh 2>> /opt/ssl/letsencrypt.log\n')
-        os.system('ln -s /opt/ssl/renew_cert /var/spool/cron/crontabs/root')
+        os.system('cp /opt/ssl/renew_cert /var/spool/cron/crontabs/root')
+        os.system('chmod 600 /var/spool/cron/crontabs/root')
+        os.system('env > /opt/dockerenv')
+        os.system("sed -i '1,3d' /opt/dockerenv")
 
     #
     nginx_https_config = """
 log_format seatableformat '\$http_x_forwarded_for \$remote_addr [\$time_local] "\$request" \$status \$body_bytes_sent "\$http_referer" "\$http_user_agent" \$upstream_response_time';
 
 server {
-    if ($host = %s) {
-        return 301 https://$host$request_uri;
-    }
     listen 80;
     server_name %s;
-    return 404;
+
+    # for letsencrypt
+    location /.well-known/acme-challenge/ {
+        alias /var/www/challenges/;
+        try_files $uri =404;
+    }
+
+    location / {
+        if ($host = %s) {
+            return 301 https://$host$request_uri;
+        }
+    }
 }
 
 server {
