@@ -10,7 +10,7 @@ import seatable_thumbnail.settings as settings
 from seatable_thumbnail.constants import TEXT_CONTENT_TYPE, FILE_EXT_TYPE_MAP, \
     IMAGE, PSD, VIDEO, XMIND
 from seatable_thumbnail.models import Workspaces, DjangoSession, DTableSystemPlugins
-from seatable_thumbnail.utils import get_file_id
+from seatable_thumbnail.utils import get_file_id, get_file_obj
 
 
 class ThumbnailSerializer(object):
@@ -33,8 +33,8 @@ class ThumbnailSerializer(object):
         self.thumbnail_info = thumbnail_info
 
     def parse_django_session(self, session_data):
-        # only for django 1.11.x
-        encoded_data = base64.b64decode(session_data)
+        # django/contrib/sessions/backends/base.py
+        encoded_data = base64.b64decode(session_data.encode('ascii'))
         hash_key, serialized = encoded_data.split(b':', 1)
         return json.loads(serialized.decode('latin-1'))
 
@@ -64,7 +64,7 @@ class ThumbnailSerializer(object):
         self.enable_file_type = enable_file_type
 
     def params_check(self):
-        size_str = self.request.query_dict['size'][0]
+        size_str = self.request.query_dict.get('size', ['256'])[0]
         size = int(size_str)
 
         file_path = '/' + self.request.url.split('/', 3)[-1]
@@ -107,12 +107,16 @@ class ThumbnailSerializer(object):
             Workspaces).filter_by(id=workspace_id).first()
         repo_id = workspace.repo_id
         workspace_owner = workspace.owner
-        file_id = get_file_id(repo_id, file_path)
+        file_obj = get_file_obj(repo_id, file_path)
+        file_id = file_obj.obj_id
 
         thumbnail_dir = os.path.join(settings.THUMBNAIL_DIR, str(size))
         thumbnail_path = os.path.join(thumbnail_dir, file_id)
         os.makedirs(thumbnail_dir, exist_ok=True)
-        exist, last_modified = self.exist_check(thumbnail_path)
+
+        last_modified_time = file_obj.mtime
+        last_modified = formatdate(int(last_modified_time), usegmt=True)
+
         etag = '"' + file_id + '"'
 
         self.resource = {
@@ -121,18 +125,9 @@ class ThumbnailSerializer(object):
             'workspace_owner': workspace_owner,
             'thumbnail_dir': thumbnail_dir,
             'thumbnail_path': thumbnail_path,
-            'exist': exist,
             'last_modified': last_modified,
             'etag': etag,
         }
-
-    def exist_check(self, thumbnail_path):
-        if os.path.exists(thumbnail_path):
-            last_modified_time = os.path.getmtime(thumbnail_path)
-            last_modified = formatdate(int(last_modified_time), usegmt=True)
-            return True, last_modified
-        else:
-            return False, ''
 
 
 class PluginSerializer(object):
