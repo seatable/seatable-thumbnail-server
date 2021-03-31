@@ -13,6 +13,14 @@ def get_file_id(repo_id, file_path):
     return file_id
 
 
+def get_file_obj(repo_id, file_path):
+    file_obj = seafile_api.get_dirent_by_path(repo_id, file_path)
+    if not file_obj:
+        raise ValueError(404, 'file_obj not found.')
+
+    return file_obj
+
+
 def get_inner_path(repo_id, file_id, file_name):
     token = seafile_api.get_fileserver_access_token(
         repo_id, file_id, 'view', '', use_onetime=True)

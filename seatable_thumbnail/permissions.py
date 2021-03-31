@@ -145,7 +145,7 @@ class ThumbnailPermission(object):
 
         token = self.collection_table['token']
         obj = self.db_session.query(
-                DTableCollectionTables).filter_by(token=token).first()
+            DTableCollectionTables).filter_by(token=token).first()
         if not obj:
             return False
 

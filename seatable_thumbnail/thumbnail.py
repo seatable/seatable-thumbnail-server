@@ -1,12 +1,10 @@
 import os
-import time
 import urllib.request
 import urllib.parse
 import zipfile
 import tempfile
 from io import BytesIO
 from PIL import Image
-from email.utils import formatdate
 
 from seaserv import get_repo, get_file_size
 import seatable_thumbnail.settings as settings
@@ -22,7 +20,7 @@ class Thumbnail(object):
         self.get()
 
     def get(self):
-        if self.exist:
+        if os.path.exists(self.thumbnail_path):
             with open(self.thumbnail_path, 'rb') as f:
                 self.body = f.read()
         else:
@@ -101,8 +99,6 @@ class Thumbnail(object):
         image = self.get_rotated_image(image)
         image.thumbnail((self.size, self.size), Image.ANTIALIAS)
         image.save(self.thumbnail_path, THUMBNAIL_EXTENSION)
-        last_modified_time = time.time()
-        self.last_modified = formatdate(int(last_modified_time), usegmt=True)
 
         # PIL to bytes
         image_bytes = BytesIO()
