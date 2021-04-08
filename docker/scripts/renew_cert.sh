@@ -1,4 +1,5 @@
 #!/bin/bash
+source /opt/dockerenv
 domain=$SEATABLE_THUMBNAIL_SERVER_HOSTNAME
 
 mkdir -p /var/www/challenges/
