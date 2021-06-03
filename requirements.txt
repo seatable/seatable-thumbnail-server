@@ -1,7 +1,7 @@
 uvicorn
 pillow
+sqlalchemy==1.4.6
 pymysql
-sqlalchemy
 future  # seaf-server
 requests
 
