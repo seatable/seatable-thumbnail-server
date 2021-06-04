@@ -26,7 +26,7 @@ RUN rm -f /usr/bin/python && \
     ln -s /usr/local/bin/pip3.6 /usr/bin/pip && \
     ln -s /usr/local/bin/pip3.6 /usr/bin/pip3
 
-RUN pip3 install uvicorn pillow pymysql sqlalchemy future requests \
+RUN pip3 install uvicorn pillow sqlalchemy==1.4.6 pymysql future requests \
     -i https://mirrors.aliyun.com/pypi/simple && rm -r /root/.cache/pip
 
 

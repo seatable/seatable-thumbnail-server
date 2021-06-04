@@ -18,16 +18,17 @@ class ThumbnailPermission(object):
     def has_dtable_asset_read_permission(self):
         # three ways to access asset
         # 1. through external link to get image
-        # 2. through dtable perm, including dtable share
-        # 3. through view share perm
+        # 2. through collection table to get image
+        # 3. through dtable perm, including dtable share, dtable custom share
+        # 4. through view share perm
 
         if self.can_access_image_through_external_link():
             return True
         if self.has_collection_table_permission():
             return True
-        if 'r' in self.check_dtable_permission():
+        if self.check_dtable_permission():
             return True
-        if 'r' in self.get_view_share_permission():
+        if self.get_view_share_permission():
             return True
 
         return False
