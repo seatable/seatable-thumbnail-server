@@ -36,6 +36,8 @@ class ThumbnailPermission(object):
     def can_access_image_through_external_link(self):
         if not hasattr(self, 'external_link'):
             return False
+        if not self.external_link.get('dtable_uuid'):
+            return False
 
         return self.external_link['dtable_uuid'] == self.dtable_uuid
 
@@ -142,6 +144,10 @@ class ThumbnailPermission(object):
 
     def has_collection_table_permission(self):
         if not hasattr(self, 'collection_table'):
+            return False
+        if not self.collection_table.get('token'):
+            return False
+        if not self.collection_table.get('dtable_uuid'):
             return False
 
         token = self.collection_table['token']
