@@ -1,6 +1,7 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+import redis
 
 import seatable_thumbnail.settings as settings
 
@@ -12,3 +13,6 @@ db_kwargs = dict(pool_recycle=300, echo=False, echo_pool=False)
 engine = create_engine(db_url, **db_kwargs)
 Base = declarative_base()
 DBSession = sessionmaker(bind=engine)
+
+
+redis_client = redis.Redis(host=settings.REDIS_HOST, decode_responses=True)

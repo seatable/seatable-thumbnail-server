@@ -4,6 +4,7 @@ sqlalchemy==1.4.6
 pymysql
 future  # seaf-server
 requests
+redis
 
 # psd_tools
 # moviepy

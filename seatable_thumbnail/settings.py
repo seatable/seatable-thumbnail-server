@@ -31,6 +31,10 @@ MYSQL_PORT = '3306'
 DATABASE_NAME = ''
 
 
+# redis
+REDIS_HOST = 'redis'
+
+
 # dir
 # LOG_DIR = 'logs/'
 # THUMBNAIL_DIR = 'thumbnail/'
