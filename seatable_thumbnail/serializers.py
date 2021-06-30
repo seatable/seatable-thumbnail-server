@@ -44,6 +44,7 @@ class ThumbnailSerializer(object):
             DjangoSession).filter_by(session_key=session_key).first()
         self.session_data = self.parse_django_session(django_session.session_data)
 
+        self.session_data['session_key'] = session_key
         username = self.session_data.get('_auth_user_name')
         external_link = self.session_data.get('external_link')
         collection_table = self.session_data.get('collection_table')

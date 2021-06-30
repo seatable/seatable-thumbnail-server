@@ -3,20 +3,41 @@ from seatable_thumbnail.models import DTables, DTableShare, \
     DTableGroupShare, DTableViewUserShare, DTableViewGroupShare, \
     DTableExternalLinks, DTableCollectionTables
 from seatable_thumbnail.constants import PERMISSION_READ, PERMISSION_READ_WRITE
+from seatable_thumbnail import redis_client
+
+CACHE_TIMEOUT = 1800
 
 
 class ThumbnailPermission(object):
     def __init__(self, db_session, **info):
         self.db_session = db_session
         self.__dict__.update(info)
-        self.dtable = self.db_session.query(
-            DTables).filter_by(uuid=self.dtable_uuid).first()
+        self.cache_key = self.session_key + ':' + self.dtable_uuid
 
     def check(self):
-        return self.has_dtable_asset_read_permission()
+        if self.has_cache_permission():
+            return True
+
+        if self.has_dtable_asset_read_permission():
+            self.set_cache_permission()
+            return True
+
+        return False
+
+    def has_cache_permission(self):
+        try:
+            return redis_client.get(self.cache_key) == '1'
+        except Exception as e:
+            return False
+
+    def set_cache_permission(self):
+        try:
+            redis_client.set(self.cache_key, '1', ex=CACHE_TIMEOUT)
+        except Exception as e:
+            pass
 
     def has_dtable_asset_read_permission(self):
-        # three ways to access asset
+        # four ways to access asset
         # 1. through external link to get image
         # 2. through collection table to get image
         # 3. through dtable perm, including dtable share, dtable custom share
@@ -41,12 +62,47 @@ class ThumbnailPermission(object):
 
         return self.external_link['dtable_uuid'] == self.dtable_uuid
 
+    def has_collection_table_permission(self):
+        if not hasattr(self, 'collection_table'):
+            return False
+        if not self.collection_table.get('token'):
+            return False
+        if not self.collection_table.get('dtable_uuid'):
+            return False
+
+        token = self.collection_table['token']
+        obj = self.db_session.query(
+            DTableCollectionTables).filter_by(token=token).first()
+        if not obj:
+            return False
+
+        return self.collection_table['dtable_uuid'] == self.dtable_uuid
+
+    def is_group_member(self, group_id, email, in_structure=None):
+
+        group_id = int(group_id)
+
+        if in_structure in (True, False):
+            return ccnet_api.is_group_user(group_id, email, in_structure)
+
+        group = ccnet_api.get_group(group_id)
+        if not group:
+            return False
+
+        if group.parent_group_id == 0:
+            # -1: top address book group
+            #  0: group not in address book
+            # >0: sub group in address book
+            # if `in_structure` is False, NOT check sub groups in address book
+            return ccnet_api.is_group_user(group_id, email, in_structure=False)
+        else:
+            return ccnet_api.is_group_user(group_id, email)
+
     def check_dtable_permission(self):
         """Check workspace/dtable access permission of a user.
         """
         owner = self.workspace_owner
         username = self.username
-        dtable = self.dtable
         if not hasattr(self, 'org_id'):
             self.org_id = -1
         org_id = self.org_id
@@ -58,6 +114,10 @@ class ThumbnailPermission(object):
         else:
             if username == owner:
                 return PERMISSION_READ_WRITE
+
+        self.dtable = self.db_session.query(
+            DTables).filter_by(uuid=self.dtable_uuid).first()
+        dtable = self.dtable
 
         if dtable:  # check user's all permissions from `share`, `group-share` and checkout higher one
             dtable_share = self.db_session.query(
@@ -121,39 +181,3 @@ class ThumbnailPermission(object):
         if not target_view_share:
             return ''
         return target_view_share.permission
-
-    def is_group_member(self, group_id, email, in_structure=None):
-
-        group_id = int(group_id)
-
-        if in_structure in (True, False):
-            return ccnet_api.is_group_user(group_id, email, in_structure)
-
-        group = ccnet_api.get_group(group_id)
-        if not group:
-            return False
-
-        if group.parent_group_id == 0:
-            # -1: top address book group
-            #  0: group not in address book
-            # >0: sub group in address book
-            # if `in_structure` is False, NOT check sub groups in address book
-            return ccnet_api.is_group_user(group_id, email, in_structure=False)
-        else:
-            return ccnet_api.is_group_user(group_id, email)
-
-    def has_collection_table_permission(self):
-        if not hasattr(self, 'collection_table'):
-            return False
-        if not self.collection_table.get('token'):
-            return False
-        if not self.collection_table.get('dtable_uuid'):
-            return False
-
-        token = self.collection_table['token']
-        obj = self.db_session.query(
-            DTableCollectionTables).filter_by(token=token).first()
-        if not obj:
-            return False
-
-        return self.collection_table['dtable_uuid'] == self.dtable_uuid

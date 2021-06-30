@@ -1,7 +1,13 @@
 version: '2.0'
 services:
+  redis:
+    image: redis:5.0.7
+    container_name: seatable-thumbnail-redis
+    networks:
+      - seatable-thumbnail-net
+
   seatable:
-    image: docker.seafile.top/seafile-dev/seatable-thumbnail-server:1.3.0
+    image: docker.seafile.top/seafile-dev/seatable-thumbnail-server:2.1.1
     container_name: seatable-thumbnail
     ports:
       - "80:80"
@@ -11,3 +17,10 @@ services:
     environment:
       - SEATABLE_THUMBNAIL_SERVER_HOSTNAME=thumbnail.seatable.cn
       - SEATABLE_THUMBNAIL_SERVER_LETSENCRYPT=True
+    depends_on:
+      - redis
+    networks:
+      - seatable-thumbnail-net
+
+networks:
+  seatable-thumbnail-net:
