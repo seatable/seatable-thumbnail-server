@@ -40,6 +40,7 @@ class ThumbnailSerializer(object):
 
     def session_check(self):
         session_key = self.request.cookies[settings.SESSION_KEY]
+        session_key = session_key.rstrip(';')
         django_session = self.db_session.query(
             DjangoSession).filter_by(session_key=session_key).first()
         self.session_data = self.parse_django_session(django_session.session_data)
