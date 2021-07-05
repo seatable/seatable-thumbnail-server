@@ -32,7 +32,7 @@ class HTTPRequest(object):
             cookie_string = self.headers.get('cookie')[0]
             for item in cookie_string.split('; '):
                 k = item.split('=')[0]
-                v = item.split('=')[1]
+                v = item.split('=')[1].rstrip(';')
                 cookies[k] = v
         self.cookies = cookies
 
