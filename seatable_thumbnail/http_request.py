@@ -1,4 +1,5 @@
 import urllib.parse
+from http.cookies import SimpleCookie
 
 import seatable_thumbnail.settings as settings
 
@@ -30,10 +31,8 @@ class HTTPRequest(object):
         cookies = {}
         if self.headers.get('cookie'):
             cookie_string = self.headers.get('cookie')[0]
-            for item in cookie_string.split('; '):
-                k = item.split('=')[0]
-                v = item.split('=')[1].rstrip(';')
-                cookies[k] = v
+            s = SimpleCookie(cookie_string)
+            cookies = {v.key: v.value for k, v in s.items()}
         self.cookies = cookies
 
     def parse_url(self):
