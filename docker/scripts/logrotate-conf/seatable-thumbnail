@@ -1,0 +1,17 @@
+/opt/seatable-thumbnail/logs/seafile.log
+/opt/seatable-thumbnail/logs/seatable-thumbnail.log
+{
+        daily
+        missingok
+        rotate 7
+        # compress
+        # delaycompress
+        dateext
+        dateformat .%Y-%m-%d
+        notifempty
+        create 644 root root
+        sharedscripts
+        postrotate
+                /scripts/logrotate-conf/seatable-thumbnail-restart.sh
+        endscript
+}
