@@ -52,6 +52,11 @@ if [[ -f /shared/ssl/renew_cert ]]; then
 fi
 
 
+# logrotate
+chmod 0644 /scripts/logrotate-conf/logrotate-cron
+/usr/bin/crontab /scripts/logrotate-conf/logrotate-cron
+
+
 # autorun
 echo
 echo "Starting SeaTable Thumbnail"

@@ -5,8 +5,6 @@ function stop_server() {
     pkill -9 -f uvicorn
     pkill -9 -f multiprocessing
 
-    pkill -9 -f monitor
-
     rm -f /opt/seatable-thumbnail/pids/*.pid
 }
 
@@ -21,21 +19,8 @@ function set_env() {
     export SEAFILE_CENTRAL_CONF_DIR=/opt/seatable-thumbnail/conf
 }
 
-function run_python_wth_env() {
-    set_env
-    python3 ${*:2}
-}
-
-function check_folder() {
-    if [[ ! -e /opt/seatable-thumbnail/conf ]]; then
-        echo 'do not find /opt/seatable-thumbnail/conf path'
-        exit 1
-    fi
-}
 
 function start_server() {
-
-    check_folder
 
     stop_server
     sleep 0.5
@@ -49,37 +34,18 @@ function start_server() {
     /usr/local/bin/uvicorn main:app --host 127.0.0.1 --port 8088 --workers 4 --access-log --proxy-headers &>> /opt/seatable-thumbnail/logs/seatable-thumbnail.log &
     sleep 0.2
 
-    /scripts/monitor.sh &>> /opt/seatable-thumbnail/logs/monitor.log &
-
-    echo "SeaTable-thumbnail-server started"
+    echo "SeaTable-thumbnail-server started by logrotate"
     echo
 
 }
 
 
-function init() {
-    if [[ ! -e /opt/seatable-thumbnail/conf ]]; then
-        mkdir /opt/seatable-thumbnail/conf
-    fi
-
-    set_env
-
-    python3 /scripts/init_config.py
-
-}
-
 case $1 in
 "start")
     start_server
     ;;
-"python-env")
-    run_python_wth_env "$@"
-    ;;
 "stop")
     stop_server
-    ;;
-"init")
-    init
     ;;
 *)
     start_server

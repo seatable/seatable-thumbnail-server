@@ -47,7 +47,7 @@ function monitor_seatable_thumbnail() {
         pkill -9 -f multiprocessing
         sleep 0.2
         cd /opt/seatable-thumbnail/seatable-thumbnail-server/
-        uvicorn main:app --host 127.0.0.1 --port 8088 --workers 4 --access-log --proxy-headers &>> /opt/seatable-thumbnail/logs/seatable-thumbnail.log &
+        /usr/local/bin/uvicorn main:app --host 127.0.0.1 --port 8088 --workers 4 --access-log --proxy-headers &>> /opt/seatable-thumbnail/logs/seatable-thumbnail.log &
         sleep 0.2
     fi
 }
