@@ -4,8 +4,6 @@ function stop_server() {
     pkill -9 -f seaf-server
     pkill -9 -f uvicorn
     pkill -9 -f multiprocessing
-
-    rm -f /opt/seatable-thumbnail/pids/*.pid
 }
 
 function set_env() {
