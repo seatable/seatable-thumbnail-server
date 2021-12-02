@@ -2,6 +2,18 @@
 
 set -e
 
+# time zone
+if [[ $TIME_ZONE != "" ]]; then
+    time_zone=/usr/share/zoneinfo/$TIME_ZONE
+    if [[ ! -e $time_zone ]]; then
+        echo "invalid time zone"
+        exit 1
+    else
+        ln -snf $time_zone /etc/localtime
+        echo "$TIME_ZONE" > /etc/timezone
+    fi
+fi
+
 # check folder
 if [[ ! -e /shared ]]; then
     echo 'do not find /shared path'

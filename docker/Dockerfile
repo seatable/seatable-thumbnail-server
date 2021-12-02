@@ -8,6 +8,9 @@ COPY scripts/my-ubuntu-source.list /etc/apt/sources.list
 ## Dev related libs
 RUN apt-get update --fix-missing
 
+# Time zone
+RUN export DEBIAN_FRONTEND=noninteractive && apt-get install -y tzdata
+
 # Nginx
 RUN apt-get install -y nginx
 

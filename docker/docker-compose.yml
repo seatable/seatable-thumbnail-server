@@ -17,6 +17,7 @@ services:
     environment:
       - SEATABLE_THUMBNAIL_SERVER_HOSTNAME=thumbnail.seatable.cn
       - SEATABLE_THUMBNAIL_SERVER_LETSENCRYPT=True
+      - TIME_ZONE=Asia/Shanghai
     depends_on:
       - redis
     networks:

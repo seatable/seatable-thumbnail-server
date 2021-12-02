@@ -1,7 +1,6 @@
 #!/bin/bash
 
 function stop_server() {
-    pkill -9 -f seaf-server
     pkill -9 -f uvicorn
     pkill -9 -f multiprocessing
 }
@@ -24,9 +23,6 @@ function start_server() {
     sleep 0.5
 
     set_env
-
-    seaf-server -F /opt/seatable-thumbnail/conf -c /opt/seatable-thumbnail/ccnet -d /opt/seatable-thumbnail/seafile-data -l /opt/seatable-thumbnail/logs/seafile.log -L /opt/seatable-thumbnail -P /opt/seatable-thumbnail/pids/seafile.pid - &
-    sleep 0.2
 
     cd /opt/seatable-thumbnail/seatable-thumbnail-server/
     /usr/local/bin/uvicorn main:app --host 127.0.0.1 --port 8088 --workers 4 --access-log --proxy-headers &>> /opt/seatable-thumbnail/logs/seatable-thumbnail.log &
