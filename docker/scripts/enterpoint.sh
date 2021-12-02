@@ -54,10 +54,11 @@ fi
 
 # logrotate
 if [[ -f /var/spool/cron/crontabs/root ]]; then
-    /usr/bin/crontab -l >> /scripts/logrotate-conf/logrotate-cron
+    cat /scripts/logrotate-conf/logrotate-cron >> /var/spool/cron/crontabs/root
+else
+    chmod 0644 /scripts/logrotate-conf/logrotate-cron
+    /usr/bin/crontab /scripts/logrotate-conf/logrotate-cron
 fi
-chmod 0644 /scripts/logrotate-conf/logrotate-cron
-/usr/bin/crontab /scripts/logrotate-conf/logrotate-cron
 
 
 # autorun
