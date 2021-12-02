@@ -12,6 +12,10 @@
         create 644 root root
         sharedscripts
         postrotate
+                if [ -f /opt/seatable-thumbnail/pids/seafile.pid ]; then
+                        kill -USR1 `cat /opt/seatable-thumbnail/pids/seafile.pid`
+                fi
+
                 /scripts/logrotate-conf/seatable-thumbnail-restart.sh
         endscript
 }
