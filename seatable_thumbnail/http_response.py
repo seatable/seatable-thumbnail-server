@@ -46,7 +46,7 @@ def gen_thumbnail_response(thumbnail, etag, last_modified):
 
     # cache
     if thumbnail:
-        response_start['headers'].append([b'Cache-Control', b'max-age=86400, public'])
+        response_start['headers'].append([b'Cache-Control', b'max-age=604800, public'])
         response_start['headers'].append([b'ETag', etag.encode('utf-8')])
         response_start['headers'].append([b'Last-Modified', last_modified.encode('utf-8')])
 
@@ -59,7 +59,7 @@ def gen_plugin_response(plugin, content_type, etag, last_modified):
 
     # cache
     if plugin:
-        response_start['headers'].append([b'Cache-Control', b'max-age=86400, public'])
+        response_start['headers'].append([b'Cache-Control', b'max-age=31536000, public'])
         response_start['headers'].append([b'ETag', etag.encode('utf-8')])
         response_start['headers'].append([b'Last-Modified', last_modified.encode('utf-8')])
 
