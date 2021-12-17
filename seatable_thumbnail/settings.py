@@ -17,6 +17,8 @@ ENABLE_PSD_THUMBNAIL = False
 # session key
 SESSION_KEY = 'sessionid'
 
+DTABLE_WEB_SECRET_KEY = ''
+
 
 # url
 URL_PREFIX = '/'

@@ -5,6 +5,7 @@ pymysql
 future  # seaf-server
 requests
 redis
+django==3.2.*
 
 # psd_tools
 # moviepy
