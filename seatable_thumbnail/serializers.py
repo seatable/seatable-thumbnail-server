@@ -1,16 +1,21 @@
 import os
 import uuid
 import json
-import base64
 import mimetypes
 from datetime import datetime
 from email.utils import formatdate
+from django.contrib.sessions.backends.db import SessionStore
+from django.conf import settings as dj_settings
 
 import seatable_thumbnail.settings as settings
 from seatable_thumbnail.constants import TEXT_CONTENT_TYPE, FILE_EXT_TYPE_MAP, \
     IMAGE, PSD, VIDEO, XMIND
 from seatable_thumbnail.models import Workspaces, DjangoSession, DTableSystemPlugins
 from seatable_thumbnail.utils import get_file_id, get_file_obj
+
+
+dj_settings.configure(SECRET_KEY=settings.DTABLE_WEB_SECRET_KEY)
+session_store = SessionStore()
 
 
 class ThumbnailSerializer(object):
@@ -34,9 +39,7 @@ class ThumbnailSerializer(object):
 
     def parse_django_session(self, session_data):
         # django/contrib/sessions/backends/base.py
-        encoded_data = base64.b64decode(session_data.encode('ascii'))
-        hash_key, serialized = encoded_data.split(b':', 1)
-        return json.loads(serialized.decode('latin-1'))
+        return session_store.decode(session_data) 
 
     def session_check(self):
         session_key = self.request.cookies[settings.SESSION_KEY]
