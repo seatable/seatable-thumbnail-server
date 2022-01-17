@@ -147,7 +147,7 @@ def init_https():
 
     #
     nginx_https_config = """
-log_format seatableformat '$http_x_forwarded_for $remote_addr [$time_iso8601] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" $upstream_response_time';
+log_format seatableformat '[$time_iso8601] $http_x_forwarded_for $remote_addr "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" $upstream_response_time';
 
 server {
     listen 80;
@@ -189,7 +189,7 @@ server {
 
 # init nginx http config
 nginx_http_config = """
-log_format seatableformat '$http_x_forwarded_for $remote_addr [$time_iso8601] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" $upstream_response_time';
+log_format seatableformat '[$time_iso8601] $http_x_forwarded_for $remote_addr "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" $upstream_response_time';
 
 server {
     server_name %s;
