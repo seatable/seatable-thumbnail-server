@@ -1,4 +1,4 @@
-uvicorn
+uvicorn==0.16.0
 pillow
 sqlalchemy==1.4.6
 pymysql
