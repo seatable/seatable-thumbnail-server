@@ -51,10 +51,11 @@ class ThumbnailSerializer(object):
         username = self.session_data.get('_auth_user_name')
         external_link = self.session_data.get('external_link')
         collection_table = self.session_data.get('collection_table')
+        external_app = self.session_data.get('external_app')
         if username:
             self.session_data['username'] = username
 
-        if not username and not external_link and not collection_table:
+        if not username and not external_link and not collection_table and not external_app:
             raise AssertionError(400, 'django session invalid.')
 
     def get_enable_file_type(self):
