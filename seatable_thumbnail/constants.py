@@ -28,7 +28,7 @@ XMIND = 'XMind'
 CDOC = 'cdoc'
 
 PREVIEW_file_ext = {
-    IMAGE: ('gif', 'jpeg', 'jpg', 'png', 'ico', 'bmp', 'tif', 'tiff',),
+    IMAGE: ('gif', 'jpeg', 'jpg', 'png', 'ico', 'bmp', 'tif', 'tiff', 'webp'),
     DOCUMENT: ('doc', 'docx', 'ppt', 'pptx', 'odt', 'fodt', 'odp', 'fodp',),
     SPREADSHEET: ('xls', 'xlsx', 'ods', 'fods',),
     SVG: ('svg',),
