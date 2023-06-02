@@ -20,6 +20,8 @@ class App:
         """
         # request
         request = HTTPRequest(**scope)
+        print('request.url: ', request.url)
+        print('request.url[:10]: ', request.url[:10])
         if request.method != 'GET':
             response_start, response_body = gen_error_response(
                 405, 'Method %s not allowed.' % request.method)
@@ -37,6 +39,7 @@ class App:
 
 # ===== thumbnail =====
         elif 'thumbnail/' == request.url[:10]:
+            print('into thumbnail...')
             db_session = DBSession()
 
             # serializer

@@ -6,6 +6,7 @@ future  # seaf-server
 requests
 redis
 django==3.2.*
+pyjwt==2.1.*
 
 # psd_tools
 # moviepy

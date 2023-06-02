@@ -35,6 +35,7 @@ class ThumbnailSerializer(object):
         thumbnail_info.update(self.params)
         thumbnail_info.update(self.session_data)
         thumbnail_info.update(self.resource)
+        thumbnail_info['request'] = self.request
         self.thumbnail_info = thumbnail_info
 
     def parse_django_session(self, session_data):
@@ -68,9 +69,25 @@ class ThumbnailSerializer(object):
             enable_file_type.append(XMIND)
         self.enable_file_type = enable_file_type
 
+    def get_param_by_name(self, name):
+        if name in self.request.query_dict:
+            return self.request.query_dict[name][0]
+        return None
+
     def params_check(self):
         size_str = self.request.query_dict.get('size', ['256'])[0]
         size = int(size_str)
+
+        # workflow task params
+        workflow_token = self.get_param_by_name('workflow_token')
+        task_id = self.get_param_by_name('task_id')
+        column_key = self.get_param_by_name('column_key')
+        column_type = self.get_param_by_name('column_type')
+
+        # external app params
+        page_id = self.get_param_by_name('page_id')
+        # and column_key but duplicated name with column_key in above code
+        row_id = self.get_param_by_name('row_id')
 
         file_path = '/' + self.request.url.split('/', 3)[-1]
         file_name = os.path.basename(file_path)
@@ -101,6 +118,12 @@ class ThumbnailSerializer(object):
             'file_name': file_name,
             'file_ext': file_ext,
             'file_type': file_type,
+            'workflow_token': workflow_token,
+            'task_id': task_id,
+            'column_key': column_key,
+            'column_type': column_type,
+            'page_id': page_id,
+            'row_id': row_id
         }
 
     def resource_check(self):

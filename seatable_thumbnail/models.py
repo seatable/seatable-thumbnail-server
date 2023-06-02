@@ -111,3 +111,64 @@ class DTableCollectionTables(Base):
     config = Column(Text, nullable=True)
     token = Column(String(36), unique=True)
     created_at = Column(DateTime, nullable=True)
+
+
+class DTableExternalApps(Base):
+    __tablename__ = 'dtable_external_apps'
+    id = Column(Integer, primary_key=True)
+    token = Column(String(36), index=True)
+    dtable_uuid = Column(String(36), index=True)
+    app_type = Column(String(255))
+    app_config = Column(Text)
+    created_at = Column(DateTime, nullable=True)
+    visit_times = Column(Integer)
+    creator = Column(String(255))
+    org_id = Column(Integer, nullable=True)
+    custom_url = Column(String(100), nullable=True, unique=True)
+
+
+class DTableWorkflows(Base):
+    __tablename__ = 'dtable_workflows'
+    id = Column(Integer, primary_key=True)
+    token = Column(String(36), unique=True)
+    dtable_uuid = Column(String(36), index=True)
+    workflow_config = Column(Text)
+    creator = Column(String(255))
+    owner = Column(String(255), index=True)
+    created_at = Column(DateTime, nullable=True)
+    visit_times = Column(Integer, nullable=True)
+
+
+class DTableWorkflowTasks(Base):
+    __tablename__ = 'dtable_workflow_tasks'
+    id = Column(Integer, primary_key=True)
+    dtable_workflow_id = Column(Integer, ForeignKey('dtable_workflows.id'))
+    row_id = Column(String(36), nullable=False, index=True)
+    initiator = Column(String(255), index=True)
+    node_id = Column(String(36), nullable=False, index=True)
+    created_at = Column(DateTime, nullable=True)
+    task_state = Column(String(40), index=True)
+    finished_at = Column(DateTime, nullable=True)
+    is_valid = Column(Boolean)
+
+
+class DTableWorkflowTaskParticipants(Base):
+    __tablename__ = 'dtable_workflow_task_participants'
+    id = Column(Integer, primary_key=True)
+    dtable_workflow_task_id = Column(Integer, ForeignKey('dtable_workflow_tasks.id'))
+    node_id = Column(String(36), nullable=False, index=True)
+    participant = Column(String(255), index=True, nullable=False)
+    updated_at = Column(DateTime, nullable=True)
+
+
+class DTableWorkflowTaskLogs(Base):
+    __tablename__ = 'dtable_workflow_task_logs'
+    id = Column(Integer, primary_key=True)
+    task_id = Column(Integer, ForeignKey('DTableWorkflowTasks.id'))
+    operator = Column(String(255), nullable=False, index=True)
+    log_type = Column(String(20), nullable=False, index=True)
+    node_id = Column(String(50), nullable=True)
+    next_node_id = Column(String(50), nullable=True)
+    row_data = Column(Text)
+    start_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, nullable=True)

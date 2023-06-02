@@ -1,5 +1,9 @@
+import time
 import urllib.request
 import urllib.parse
+from uuid import UUID
+
+import jwt
 
 from seaserv import seafile_api
 import seatable_thumbnail.settings as settings
@@ -46,3 +50,28 @@ def cache_check(request, info):
         return True
     else:
         return False
+
+
+def gen_access_token(dtable_uuid, username, minutes=5):
+    # generate json web token
+    payload = {
+        'exp': int(time.time()) + 60 * minutes,
+        'dtable_uuid': str(UUID(dtable_uuid)) if not isinstance(dtable_uuid, UUID) else str(dtable_uuid),
+        'username': username,
+        'permission': 'rw',
+    }
+    access_token = jwt.encode(
+        payload, settings.DTABLE_PRIVATE_KEY, algorithm='HS256'
+    )
+    return access_token if isinstance(access_token, str) else access_token.decode()
+
+
+def gen_headers(dtable_uuid, username):
+    return {'Authorization': 'Token ' + gen_access_token(dtable_uuid, username)}
+
+
+def get_dtable_server_url():
+    if settings.ENABLE_DTABLE_SERVER_CLUSTER:
+        return settings.DTABLE_PROXY_SERVER_URL
+    else:
+        return settings.INNER_DTABLE_SERVER
