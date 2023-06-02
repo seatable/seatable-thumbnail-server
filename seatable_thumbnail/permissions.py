@@ -231,7 +231,7 @@ class ThumbnailPermission(object):
         if task_exists or participant_exists:
             return True
         # initiator
-        path = self.file_path.lstrip('/')
+        path = self.file_path.split('')
         print('self.username: ', self.username)
         print('task.initiator: ', task.initiator)
         print('column_key: ', column_key)
