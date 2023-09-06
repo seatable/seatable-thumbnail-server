@@ -1,7 +1,7 @@
 from seaserv import ccnet_api
 from seatable_thumbnail.models import DTables, DTableShare, \
     DTableGroupShare, DTableViewUserShare, DTableViewGroupShare, \
-    DTableExternalLinks, DTableCollectionTables
+    DTableExternalLinks, DTableCollectionTables, DepartmentMembersV2, DepartmentV2Groups
 from seatable_thumbnail.constants import PERMISSION_READ, PERMISSION_READ_WRITE
 from seatable_thumbnail import redis_client
 
@@ -88,9 +88,24 @@ class ThumbnailPermission(object):
 
         return self.collection_table['dtable_uuid'] == self.dtable_uuid
 
+    def is_department_v2_group_member(self, group_id, email):
+        group = self.db_session.query(
+            DepartmentV2Groups).filter_by(group_id=group_id).first()
+        if not group:
+            return False
+        department_id = group.department_id
+        member = self.db_session.query(
+            DepartmentMembersV2).filter_by(department_id=department_id, username=email).first()
+        if member:
+            return True
+        return False
+
     def is_group_member(self, group_id, email, in_structure=None):
 
         group_id = int(group_id)
+
+        if self.is_department_v2_group_member(group_id, email):
+            return True
 
         if in_structure in (True, False):
             return ccnet_api.is_group_user(group_id, email, in_structure)

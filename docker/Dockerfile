@@ -29,7 +29,7 @@ RUN rm -f /usr/bin/python && \
     ln -s /usr/local/bin/pip3.6 /usr/bin/pip && \
     ln -s /usr/local/bin/pip3.6 /usr/bin/pip3
 
-RUN pip3 install uvicorn==0.16.0 pillow sqlalchemy==1.4.6 pymysql future requests redis django==3.2.* \
+RUN pip3 install uvicorn==0.16.0 pillow==8.4.0 sqlalchemy==1.4.6 pymysql==1.0.2 future==0.18.2 requests==2.27.1 redis==4.2.2 django==3.2.* \
     -i https://mirrors.aliyun.com/pypi/simple && rm -r /root/.cache/pip
 
 

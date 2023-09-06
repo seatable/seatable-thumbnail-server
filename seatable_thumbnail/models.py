@@ -111,3 +111,29 @@ class DTableCollectionTables(Base):
     config = Column(Text, nullable=True)
     token = Column(String(36), unique=True)
     created_at = Column(DateTime, nullable=True)
+
+
+class DepartmentsV2(Base):
+    __tablename__ = 'departments_v2'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(255))
+    created_at = Column(DateTime)
+    parent_id = Column(Integer, index=True)
+    org_id = Column(Integer)
+    id_in_org = Column(Integer)
+
+
+class DepartmentMembersV2(Base):
+    __tablename__ = 'department_members_v2'
+    id = Column(Integer, primary_key=True)
+    department_id = Column(Integer, ForeignKey('departments_v2.id'))
+    username = Column(String(255), index=True)
+    is_staff = Column(Boolean)
+    created_at = Column(DateTime)
+
+
+class DepartmentV2Groups(Base):
+    __tablename__ = 'department_v2_groups'
+    id = Column(Integer, primary_key=True)
+    department_id = Column(Integer, ForeignKey('departments_v2.id'))
+    group_id = Column(Integer, index=True)
