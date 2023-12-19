@@ -1,7 +1,8 @@
 from seaserv import ccnet_api
 from seatable_thumbnail.models import DTables, DTableShare, \
     DTableGroupShare, DTableViewUserShare, DTableViewGroupShare, \
-    DTableExternalLinks, DTableCollectionTables, DepartmentMembersV2, DepartmentV2Groups
+    DTableExternalLinks, DTableCollectionTables, DepartmentMembersV2, \
+    DepartmentsV2, DepartmentV2Groups
 from seatable_thumbnail.constants import PERMISSION_READ, PERMISSION_READ_WRITE
 from seatable_thumbnail import redis_client
 
@@ -123,6 +124,33 @@ class ThumbnailPermission(object):
         else:
             return ccnet_api.is_group_user(group_id, email)
 
+    def get_ancestor_department_v2_ids(self, department, include_self=True):
+        dep_ids = []
+        for dep_id in department.path.strip('/').split('/'):
+            if not include_self and dep_id == department.id:
+                continue
+            try:
+                dep_ids.append(int(dep_id))
+            except:
+                pass
+        return dep_ids
+
+    def get_departments_v2_by_user(self, username):
+        department_member_query = self.db_session.query(
+            DepartmentMembersV2).filter_by(username=username)
+        department_query = self.db_session.query(
+            DepartmentsV2).filter(DepartmentsV2.id.in_([item.department_id for item in department_member_query]))
+        return department_query
+
+    def get_department_v2_groups_by_user(self, username):
+        departments = self.get_departments_v2_by_user(username)
+        departments_ids_set = set()
+        for department in departments:
+            for department_id in self.get_ancestor_department_v2_ids(department):
+                departments_ids_set.add(department_id)
+        return self.db_session.query(
+            DepartmentV2Groups).filter(DepartmentV2Groups.department_id.in_(list(departments_ids_set)))
+
     def check_dtable_permission(self):
         """Check workspace/dtable access permission of a user.
         """
@@ -156,6 +184,11 @@ class ThumbnailPermission(object):
             else:
                 groups = ccnet_api.get_groups(username, return_ancestors=True)
             group_ids = [group.id for group in groups]
+
+            groups_v2 = self.get_department_v2_groups_by_user(username)
+            groups_v2_ids = [group.group_id for group in groups_v2]
+            group_ids.extend(groups_v2_ids)
+
             group_permissions = self.db_session.query(
                 DTableGroupShare.permission).filter(DTableGroupShare.dtable_id == dtable.id, DTableGroupShare.group_id.in_(group_ids)).all()
 
@@ -164,6 +197,14 @@ class ThumbnailPermission(object):
                 if group_permission[0] == PERMISSION_READ_WRITE:
                     return group_permission[0]
             return permission
+
+        if '@seafile_group' not in owner:
+            departments = self.get_departments_v2_by_user(owner)
+            for department in departments:
+                department_ids = self.get_ancestor_department_v2_ids(department)
+                if self.db_session.query(
+                        DepartmentMembersV2).filter(DepartmentMembersV2.department_id.in_(department_ids), DepartmentMembersV2.username==username).first():
+                    return PERMISSION_READ_WRITE
 
         return ''
 
