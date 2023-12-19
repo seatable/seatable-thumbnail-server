@@ -135,13 +135,17 @@ class ThumbnailPermission(object):
                 pass
         return dep_ids
 
-    def get_department_v2_groups_by_user(self, username):
+    def get_departments_v2_by_user(self, username):
         department_member_query = self.db_session.query(
             DepartmentMembersV2).filter_by(username=username)
         department_query = self.db_session.query(
             DepartmentsV2).filter(DepartmentsV2.id.in_([item.department_id for item in department_member_query]))
+        return department_query
+
+    def get_department_v2_groups_by_user(self, username):
+        departments = self.get_departments_v2_by_user(username)
         departments_ids_set = set()
-        for department in department_query:
+        for department in departments:
             for department_id in self.get_ancestor_department_v2_ids(department):
                 departments_ids_set.add(department_id)
         return self.db_session.query(
@@ -193,6 +197,14 @@ class ThumbnailPermission(object):
                 if group_permission[0] == PERMISSION_READ_WRITE:
                     return group_permission[0]
             return permission
+
+        if '@seafile_group' not in owner:
+            departments = self.get_departments_v2_by_user(owner)
+            for department in departments:
+                department_ids = self.get_ancestor_department_v2_ids(department)
+                if self.db_session.query(
+                        DepartmentMembersV2).filter(DepartmentMembersV2.department_id.in_(department_ids), DepartmentMembersV2.username==username).first():
+                    return PERMISSION_READ_WRITE
 
         return ''
 
