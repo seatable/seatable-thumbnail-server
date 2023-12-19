@@ -121,6 +121,7 @@ class DepartmentsV2(Base):
     parent_id = Column(Integer, index=True)
     org_id = Column(Integer)
     id_in_org = Column(Integer)
+    path = Column(String(1024), index=True)
 
 
 class DepartmentMembersV2(Base):
