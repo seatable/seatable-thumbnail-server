@@ -1,3 +1,4 @@
+from sqlalchemy import select
 from seaserv import ccnet_api
 from seatable_thumbnail.models import DTables, DTableShare, \
     DTableGroupShare, DTableViewUserShare, DTableViewGroupShare, \
@@ -82,21 +83,23 @@ class ThumbnailPermission(object):
             return False
 
         token = self.collection_table['token']
-        obj = self.db_session.query(
-            DTableCollectionTables).filter_by(token=token).first()
+        stmt = select(DTableCollectionTables).where(
+            DTableCollectionTables.token==token)
+        obj = self.db_session.scalars(stmt).first()
         if not obj:
             return False
 
         return self.collection_table['dtable_uuid'] == self.dtable_uuid
 
     def is_department_v2_group_member(self, group_id, email):
-        group = self.db_session.query(
-            DepartmentV2Groups).filter_by(group_id=group_id).first()
+        stmt = select(DepartmentV2Groups).where(DepartmentV2Groups.group_id==group_id)
+        group = self.db_session.scalars(stmt).first()
         if not group:
             return False
         department_id = group.department_id
-        member = self.db_session.query(
-            DepartmentMembersV2).filter_by(department_id=department_id, username=email).first()
+        stmt = select(DepartmentMembersV2).where(
+            DepartmentMembersV2.department_id==department_id, DepartmentMembersV2.username==email)
+        member = self.db_session.scalars(stmt).first()
         if member:
             return True
         return False
@@ -136,10 +139,13 @@ class ThumbnailPermission(object):
         return dep_ids
 
     def get_departments_v2_by_user(self, username):
-        department_member_query = self.db_session.query(
-            DepartmentMembersV2).filter_by(username=username)
-        department_query = self.db_session.query(
-            DepartmentsV2).filter(DepartmentsV2.id.in_([item.department_id for item in department_member_query]))
+        stmt = select(DepartmentMembersV2).where(
+            DepartmentMembersV2.username==username)
+        department_member_query = self.db_session.scalars(stmt)
+
+        stmt = select(DepartmentsV2).where(
+            DepartmentsV2.id.in_([item.department_id for item in department_member_query]))
+        department_query = self.db_session.scalars(stmt)
         return department_query
 
     def get_department_v2_groups_by_user(self, username):
@@ -148,8 +154,11 @@ class ThumbnailPermission(object):
         for department in departments:
             for department_id in self.get_ancestor_department_v2_ids(department):
                 departments_ids_set.add(department_id)
-        return self.db_session.query(
-            DepartmentV2Groups).filter(DepartmentV2Groups.department_id.in_(list(departments_ids_set)))
+
+        stmt = select(DepartmentV2Groups).where(
+            DepartmentV2Groups.department_id.in_(list(departments_ids_set)))
+        groups = self.db_session.scalars(stmt)
+        return groups
 
     def check_dtable_permission(self):
         """Check workspace/dtable access permission of a user.
@@ -168,13 +177,15 @@ class ThumbnailPermission(object):
             if username == owner:
                 return PERMISSION_READ_WRITE
 
-        self.dtable = self.db_session.query(
-            DTables).filter_by(uuid=self.dtable_uuid).first()
+        stmt = select(DTables).where(
+            DTables.uuid==self.dtable_uuid)
+        self.dtable = self.db_session.scalars(stmt).first()
         dtable = self.dtable
 
         if dtable:  # check user's all permissions from `share`, `group-share` and checkout higher one
-            dtable_share = self.db_session.query(
-                DTableShare).filter_by(dtable_id=dtable.id, to_user=username).first()
+            stmt = select(DTableShare).where(
+                DTableShare.dtable_id==dtable.id, DTableShare.to_user==username)
+            dtable_share = self.db_session.scalars(stmt).first()
             if dtable_share and dtable_share.permission == PERMISSION_READ_WRITE:
                 return dtable_share.permission
             permission = dtable_share.permission if dtable_share else ''
@@ -189,9 +200,10 @@ class ThumbnailPermission(object):
             groups_v2_ids = [group.group_id for group in groups_v2]
             group_ids.extend(groups_v2_ids)
 
-            group_permissions = self.db_session.query(
-                DTableGroupShare.permission).filter(DTableGroupShare.dtable_id == dtable.id, DTableGroupShare.group_id.in_(group_ids)).all()
+            stmt = select(DTableGroupShare.permission).where(
+                DTableGroupShare.dtable_id==dtable.id, DTableGroupShare.group_id.in_(group_ids))
 
+            group_permissions = self.db_session.scalars(stmt)
             for group_permission in group_permissions:
                 permission = permission if permission else group_permission[0]
                 if group_permission[0] == PERMISSION_READ_WRITE:
@@ -202,8 +214,10 @@ class ThumbnailPermission(object):
             departments = self.get_departments_v2_by_user(owner)
             for department in departments:
                 department_ids = self.get_ancestor_department_v2_ids(department)
-                if self.db_session.query(
-                        DepartmentMembersV2).filter(DepartmentMembersV2.department_id.in_(department_ids), DepartmentMembersV2.username==username).first():
+                stmt = select(DepartmentMembersV2).where(
+                    DepartmentMembersV2.department_id.in_(department_ids), DepartmentMembersV2.username==username)
+                p = self.db_session.scalars(stmt).first()
+                if p:
                     return PERMISSION_READ_WRITE
 
         return ''
@@ -223,8 +237,9 @@ class ThumbnailPermission(object):
         username = self.username
         dtable = self.dtable
 
-        view_share = self.db_session.query(
-            DTableViewUserShare).filter_by(dtable_id=dtable.id, to_user=username).order_by(DTableViewUserShare.permission.desc()).first()
+        stmt = select(DTableViewUserShare).where(
+            DTableViewUserShare.dtable_id==dtable.id, DTableViewUserShare.to_user==username).order_by(DTableViewUserShare.permission.desc())
+        view_share = self.db_session.scalars(stmt).first()
         if not view_share:
             return ''
         return view_share.permission
@@ -235,9 +250,10 @@ class ThumbnailPermission(object):
         username = self.username
         dtable = self.dtable
 
-        view_shares = self.db_session.query(
-            DTableViewGroupShare).filter_by(dtable_id=dtable.id).order_by(DTableViewGroupShare.permission.desc()).all()
+        stmt = select(DTableViewGroupShare).where(
+            DTableViewGroupShare.dtable_id==dtable.id).order_by(DTableViewGroupShare.permission.desc())
 
+        view_shares = self.db_session.scalars(stmt)
         target_view_share = None
         for view_share in view_shares:
             if self.is_group_member(view_share.to_group_id, username):

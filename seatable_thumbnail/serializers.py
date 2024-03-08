@@ -6,6 +6,7 @@ from datetime import datetime
 from email.utils import formatdate
 from django.contrib.sessions.backends.db import SessionStore
 from django.conf import settings as dj_settings
+from sqlalchemy import select
 
 import seatable_thumbnail.settings as settings
 from seatable_thumbnail.constants import TEXT_CONTENT_TYPE, FILE_EXT_TYPE_MAP, \
@@ -43,8 +44,9 @@ class ThumbnailSerializer(object):
 
     def session_check(self):
         session_key = self.request.cookies[settings.SESSION_KEY]
-        django_session = self.db_session.query(
-            DjangoSession).filter_by(session_key=session_key).first()
+        stmt = select(DjangoSession).where(
+            DjangoSession.session_key==session_key)
+        django_session = self.db_session.scalars(stmt).first()
         self.session_data = self.parse_django_session(django_session.session_data)
 
         self.session_data['session_key'] = session_key
@@ -108,8 +110,9 @@ class ThumbnailSerializer(object):
         file_path = self.params['file_path']
         size = self.params['size']
 
-        workspace = self.db_session.query(
-            Workspaces).filter_by(id=workspace_id).first()
+        stmt = select(Workspaces).where(
+            Workspaces.id==workspace_id)
+        workspace = self.db_session.scalars(stmt).first()
         repo_id = workspace.repo_id
         workspace_owner = workspace.owner
         file_obj = get_file_obj(repo_id, file_path)
@@ -171,8 +174,10 @@ class PluginSerializer(object):
         path = self.params['path']
         plugin_name = self.params['plugin_name']
 
-        plugin = self.db_session.query(
-            DTableSystemPlugins).filter_by(name=plugin_name).first()
+        stmt = select(DTableSystemPlugins).where(
+            DTableSystemPlugins.name==plugin_name)
+    
+        plugin = self.db_session.scalars(stmt).first()
 
         file_path ='/' + plugin.name + path
         file_name = os.path.basename(file_path)
