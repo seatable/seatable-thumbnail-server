@@ -97,7 +97,7 @@ class Thumbnail(object):
 
         # save file
         image = self.get_rotated_image(image)
-        image.thumbnail((self.size, self.size), Image.ANTIALIAS)
+        image.thumbnail((self.size, self.size), Image.Resampling.LANCZOS)
         image.save(self.thumbnail_path, THUMBNAIL_EXTENSION)
 
         # PIL to bytes
@@ -115,24 +115,24 @@ class Thumbnail(object):
 
         if orientation == 2:
             # Vertical image
-            image = image.transpose(Image.FLIP_LEFT_RIGHT)
+            image = image.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
         elif orientation == 3:
             # Rotation 180
             image = image.rotate(180)
         elif orientation == 4:
-            image = image.rotate(180).transpose(Image.FLIP_LEFT_RIGHT)
+            image = image.rotate(180).transpose(Image.Transpose.FLIP_LEFT_RIGHT)
             # Horizontal image
         elif orientation == 5:
             # Horizontal image + Rotation 90 CCW
             image = image.rotate(-90,
-                                 expand=True).transpose(Image.FLIP_LEFT_RIGHT)
+                                 expand=True).transpose(Image.Transpose.FLIP_LEFT_RIGHT)
         elif orientation == 6:
             # Rotation 270
             image = image.rotate(-90, expand=True)
         elif orientation == 7:
             # Horizontal image + Rotation 270
             image = image.rotate(90, expand=True).transpose(
-                Image.FLIP_LEFT_RIGHT)
+                Image.Transpose.FLIP_LEFT_RIGHT)
         elif orientation == 8:
             # Rotation 90
             image = image.rotate(90, expand=True)
