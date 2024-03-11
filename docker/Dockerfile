@@ -1,9 +1,5 @@
-FROM phusion/baseimage:0.11
+FROM phusion/baseimage:focal-1.2.0
 # docker.seafile.top/seafile-dev/seatable-thumbnail-server:1.x.x
-
-# Aliyun ubuntu source
-RUN rm -rf /etc/apt/sources.list
-COPY scripts/my-ubuntu-source.list /etc/apt/sources.list
 
 ## Dev related libs
 RUN apt-get update --fix-missing
@@ -17,20 +13,14 @@ RUN apt-get install -y nginx
 # Mysql
 RUN apt-get install -y mysql-client
 
-# set python3.6 global
-RUN apt-get install -y python3 python3-pip
-RUN python3.6 -m pip install --upgrade pip -i https://mirrors.aliyun.com/pypi/simple && rm -r /root/.cache/pip
-RUN rm -f /usr/bin/python && \
-    rm -f /usr/bin/python3 && \
-    rm -f /usr/bin/pip && \
-    rm -f /usr/bin/pip3 && \
-    ln -s /usr/bin/python3.6 /usr/bin/python && \
-    ln -s /usr/bin/python3.6 /usr/bin/python3 && \
-    ln -s /usr/local/bin/pip3.6 /usr/bin/pip && \
-    ln -s /usr/local/bin/pip3.6 /usr/bin/pip3
+# set python3.8 global
+RUN apt-get install -y python3.8 python3-pip python3-setuptools
+RUN python3 -m pip install --upgrade pip && rm -r /root/.cache/pip && \
+    rm -f /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python && \
+    rm -f /usr/bin/pip && ln -s /usr/local/bin/pip3 /usr/bin/pip
 
-RUN pip3 install uvicorn==0.16.0 pillow==8.4.0 sqlalchemy==1.4.6 pymysql==1.0.2 future==0.18.2 requests==2.27.1 redis==4.2.2 django==3.2.* \
-    -i https://mirrors.aliyun.com/pypi/simple && rm -r /root/.cache/pip
+RUN pip3 install uvicorn==0.16.0 pillow==10.2.* sqlalchemy==2.0.18 pymysql==1.0.* future==0.18.* requests==2.31.* redis==4.4.* django==4.2.* \
+    -i https://pypi.tuna.tsinghua.edu.cn/simple/ && rm -r /root/.cache/pip
 
 
 # seatable-thumbnail
