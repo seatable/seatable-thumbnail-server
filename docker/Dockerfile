@@ -15,12 +15,11 @@ RUN apt-get install -y mysql-client
 
 # set python3.8 global
 RUN apt-get install -y python3.8 python3-pip python3-setuptools
-RUN python3 -m pip install --upgrade pip && rm -r /root/.cache/pip && \
+RUN python3 -m pip install --no-cache-dir --upgrade pip && \
     rm -f /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python && \
     rm -f /usr/bin/pip && ln -s /usr/local/bin/pip3 /usr/bin/pip
 
-RUN pip3 install uvicorn==0.16.0 pillow==10.2.* sqlalchemy==2.0.18 pymysql==1.0.* future==0.18.* requests==2.31.* redis==4.4.* django==4.2.* \
-    -i https://pypi.tuna.tsinghua.edu.cn/simple/ && rm -r /root/.cache/pip
+RUN pip3 install --no-cache-dir uvicorn==0.16.0 pillow==10.2.* sqlalchemy==2.0.18 pymysql==1.0.* future==0.18.* requests==2.31.* redis==4.4.* django==4.2.*
 
 
 # seatable-thumbnail
