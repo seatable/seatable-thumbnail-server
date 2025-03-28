@@ -25,8 +25,8 @@ RUN pip3 install --no-cache-dir uvicorn==0.16.0 pillow==10.2.* sqlalchemy==2.0.1
 # seatable-thumbnail
 RUN mkdir -p /opt/seatable-thumbnail 
 WORKDIR /opt/seatable-thumbnail
-COPY src/seafile /opt/seatable-thumbnail/seafile
-COPY src/seatable-thumbnail-server /opt/seatable-thumbnail/seatable-thumbnail-server
+COPY seafile /opt/seatable-thumbnail/seafile
+COPY seatable-thumbnail-server /opt/seatable-thumbnail/seatable-thumbnail-server
 
 RUN ln -sf /opt/seatable-thumbnail/seafile/lib/libsearpc.so.1.0.2 /opt/seatable-thumbnail/seafile/lib/libsearpc.so.1
 RUN ln -sf /opt/seatable-thumbnail/seafile/lib/libsearpc.so.1.0.2 /opt/seatable-thumbnail/seafile/lib/libsearpc.so

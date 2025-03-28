@@ -12,6 +12,6 @@
 ## Build
 
 1. cp seatable_thumbnail docker/src/seatable-thumbnail-server/seatable_thumbnail
-2. cp main.py docker/src/seatable-thumbnail-server/main.py
-3. cp seafile docker/src/seafile (seafile folder was in seatable-pro-server_1.x.x.tar.gz)
+2. cp main.py docker/seatable-thumbnail-server/main.py
+3. cp seafile docker/seafile (seafile folder was in seatable docker)
 4. docker build -t docker.seafile.top/seafile-dev/seatable-thumbnail-server:1.x.x ./
