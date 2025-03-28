@@ -1,0 +1,11 @@
+prefix=/opt/dtable-build/seatable-server/seafile
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libseafile
+Description: Client library for accessing seafile service.
+Version: 6.0.0
+Libs: -L${libdir} -lseafile -L/opt/dtable-build/seatable-server/seafile/lib -lsearpc -lgio-2.0 -lgobject-2.0 -lglib-2.0 -ljansson 
+Cflags: -I${includedir} -I/opt/dtable-build/seatable-server/seafile/include -I/opt/dtable-build/seatable-server/seafile/include/searpc -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -pthread -I/usr/include/libmount -I/usr/include/blkid 
+Requires: gobject-2.0 glib-2.0
