@@ -1,5 +1,16 @@
-FROM phusion/baseimage:focal-1.2.0
+FROM ubuntu:24.04
 # docker.seafile.top/seafile-dev/seatable-thumbnail-server:1.x.x
+
+# https://github.com/phusion/baseimage-docker
+COPY base_scripts /bd_build
+RUN /bd_build/prepare.sh && \
+    /bd_build/system_services.sh && \
+    /bd_build/utilities.sh && \
+    /bd_build/cleanup.sh
+ENV DEBIAN_FRONTEND="teletype" \
+    LANG="en_US.UTF-8" \
+    LANGUAGE="en_US:en" \
+    LC_ALL="en_US.UTF-8"
 
 ## Dev related libs
 RUN apt-get update --fix-missing
@@ -13,11 +24,10 @@ RUN apt-get install -y nginx
 # Mysql
 RUN apt-get install -y mysql-client
 
-# set python3.8 global
-RUN apt-get install -y python3.8 python3-pip python3-setuptools
-RUN python3 -m pip install --no-cache-dir --upgrade pip && \
-    rm -f /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python && \
-    rm -f /usr/bin/pip && ln -s /usr/local/bin/pip3 /usr/bin/pip
+# set python3 global
+RUN apt-get install -y python3 python3-pip python3-setuptools && \
+    rm /usr/lib/python3.12/EXTERNALLY-MANAGED && \
+    rm -f /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python
 
 RUN pip3 install --no-cache-dir uvicorn==0.16.0 pillow==10.2.* sqlalchemy==2.0.18 pymysql==1.0.* future==0.18.* requests==2.31.* redis==4.4.* django==4.2.*
 

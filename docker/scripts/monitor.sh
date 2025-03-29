@@ -2,7 +2,7 @@
 
 export SRC_DIR=/opt/seatable-thumbnail/
 export LD_LIBRARY_PATH=/opt/seatable-thumbnail/seafile/lib/
-export PYTHONPATH=/opt/seatable-thumbnail/seafile/lib/python3/site-packages/:/usr/lib/python3.8/dist-packages:/usr/lib/python3.8/site-packages:/usr/local/lib/python3.8/dist-packages:/usr/local/lib/python3.8/site-packages
+export PYTHONPATH=/opt/seatable-thumbnail/seafile/lib/python3/site-packages/:/usr/lib/python3.12/dist-packages:/usr/lib/python3.12/site-packages:/usr/local/lib/python3.12/dist-packages:/usr/local/lib/python3.12/site-packages
 export PATH=/opt/seatable-thumbnail/seafile/bin/:$PATH
 
 export CCNET_CONF_DIR=/opt/seatable-thumbnail/ccnet
